@@ -1,64 +1,43 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Card } from "@/components/ui/card";
-import { Trophy, Medal } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
-interface TeamScore {
-  team_id: string;
-  team_number: number;
+interface Team {
+  id: string;
   team_name: string;
-  total_score: number;
-  submission_count: number;
+  team_number: number;
+}
+
+interface Problem {
+  id: string;
+  problem_number: number;
 }
 
 const Scoreboard = () => {
-  const [scores, setScores] = useState<TeamScore[]>([]);
+  const [teams, setTeams] = useState<Team[]>([]);
+  const [problems, setProblems] = useState<Problem[]>([]);
   const [loading, setLoading] = useState(true);
 
-  const fetchScores = async () => {
-    const { data: submissions } = await supabase
-      .from("submissions")
-      .select(`
-        team_id,
-        score,
-        teams (
-          team_number,
-          team_name
-        )
-      `);
+  const fetchData = async () => {
+    const [teamsRes, problemsRes] = await Promise.all([
+      supabase.from("teams").select("*").order("team_number"),
+      supabase.from("problems").select("*").order("problem_number"),
+    ]);
 
-    if (submissions) {
-      const scoreMap = new Map<string, TeamScore>();
-
-      submissions.forEach((sub: any) => {
-        const teamId = sub.team_id;
-        if (!scoreMap.has(teamId)) {
-          scoreMap.set(teamId, {
-            team_id: teamId,
-            team_number: sub.teams.team_number,
-            team_name: sub.teams.team_name,
-            total_score: 0,
-            submission_count: 0,
-          });
-        }
-        const team = scoreMap.get(teamId)!;
-        team.total_score += sub.score || 0;
-        team.submission_count += 1;
-      });
-
-      const sortedScores = Array.from(scoreMap.values()).sort(
-        (a, b) => b.total_score - a.total_score
-      );
-
-      setScores(sortedScores);
-    }
+    if (teamsRes.data) setTeams(teamsRes.data);
+    if (problemsRes.data) setProblems(problemsRes.data);
     setLoading(false);
   };
 
   useEffect(() => {
-    fetchScores();
+    fetchData();
 
     const channel = supabase
       .channel("scoreboard-changes")
@@ -70,7 +49,7 @@ const Scoreboard = () => {
           table: "submissions",
         },
         () => {
-          fetchScores();
+          fetchData();
         }
       )
       .subscribe();
@@ -79,13 +58,6 @@ const Scoreboard = () => {
       supabase.removeChannel(channel);
     };
   }, []);
-
-  const getRankIcon = (index: number) => {
-    if (index === 0) return <Trophy className="w-6 h-6 text-gold" />;
-    if (index === 1) return <Medal className="w-6 h-6 text-silver" />;
-    if (index === 2) return <Medal className="w-6 h-6 text-bronze" />;
-    return <span className="w-6 h-6 flex items-center justify-center text-muted-foreground font-bold">{index + 1}</span>;
-  };
 
   if (loading) {
     return (
@@ -97,7 +69,7 @@ const Scoreboard = () => {
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
-      <div className="max-w-6xl mx-auto space-y-8">
+      <div className="max-w-7xl mx-auto space-y-8">
         <div className="text-center space-y-4">
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
             Live Scoreboard
@@ -107,46 +79,33 @@ const Scoreboard = () => {
           </p>
         </div>
 
-        <div className="space-y-4">
-          {scores.length === 0 ? (
-            <Card className="p-12 text-center">
-              <p className="text-xl text-muted-foreground">No submissions yet</p>
-              <Link to="/setup" className="inline-block mt-4">
-                <Button variant="secondary">Set up teams and problems</Button>
-              </Link>
-            </Card>
-          ) : (
-            scores.map((team, index) => (
-              <Card
-                key={team.team_id}
-                className={`p-6 transition-all duration-300 hover:scale-[1.02] ${
-                  index === 0 ? "border-gold shadow-glow" : ""
-                }`}
-              >
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-6">
-                    <div className="flex items-center justify-center w-12">
-                      {getRankIcon(index)}
-                    </div>
-                    <div>
-                      <div className="text-2xl font-bold">
-                        Team {team.team_number}: {team.team_name}
-                      </div>
-                      <div className="text-sm text-muted-foreground">
-                        {team.submission_count} submission{team.submission_count !== 1 ? "s" : ""}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="text-right">
-                    <div className="text-4xl font-bold text-primary">
-                      {team.total_score.toFixed(1)}
-                    </div>
-                    <div className="text-sm text-muted-foreground">points</div>
-                  </div>
-                </div>
-              </Card>
-            ))
-          )}
+        <div className="border rounded-lg overflow-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="font-bold">Team Name</TableHead>
+                {problems.map((problem) => (
+                  <TableHead key={problem.id} className="text-center font-bold">
+                    {problem.problem_number}
+                  </TableHead>
+                ))}
+                <TableHead className="text-center font-bold">Score</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {teams.map((team) => (
+                <TableRow key={team.id}>
+                  <TableCell className="font-medium">{team.team_name}</TableCell>
+                  {problems.map((problem) => (
+                    <TableCell key={problem.id} className="text-center">
+                      {/* Empty for now - will be filled with submission data */}
+                    </TableCell>
+                  ))}
+                  <TableCell className="text-center font-bold">81920</TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
         </div>
       </div>
     </div>

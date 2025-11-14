@@ -119,8 +119,8 @@ const Setup = () => {
   };
 
   const saveProblems = async () => {
-    if (problems.some(p => !p.question.trim() || !p.answer.trim())) {
-      toast({ title: "Please fill all questions and answers", variant: "destructive" });
+    if (problems.some(p => !p.answer.trim())) {
+      toast({ title: "Please fill all answers", variant: "destructive" });
       return;
     }
 
@@ -136,7 +136,7 @@ const Setup = () => {
       
       const problemRecords = problems.map((problem, index) => ({
         problem_number: index + 1,
-        question: problem.question.trim(),
+        question: `Problem ${index + 1}`,
         correct_answer: parseFloat(problem.answer),
       }));
 
@@ -236,22 +236,17 @@ const Setup = () => {
                 {problems.length > 0 && (
                   <div className="space-y-4 max-h-96 overflow-y-auto">
                     {problems.map((problem, index) => (
-                      <div key={index} className="space-y-2 p-3 border border-border rounded-lg">
-                        <div className="text-sm font-medium text-muted-foreground">
+                      <div key={index} className="flex items-center gap-3">
+                        <span className="text-sm font-medium text-muted-foreground w-20">
                           Problem {index + 1}
-                        </div>
-                        <Textarea
-                          value={problem.question}
-                          onChange={(e) => updateProblem(index, 'question', e.target.value)}
-                          placeholder="Question..."
-                          rows={2}
-                        />
+                        </span>
                         <Input
                           type="number"
                           step="any"
                           value={problem.answer}
                           onChange={(e) => updateProblem(index, 'answer', e.target.value)}
-                          placeholder="Correct answer"
+                          placeholder="Answer"
+                          className="flex-1"
                         />
                       </div>
                     ))}

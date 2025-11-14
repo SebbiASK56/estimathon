@@ -29,6 +29,16 @@ const Scoreboard = () => {
   const [timeLeft, setTimeLeft] = useState(30 * 60); // 30 minutes in seconds
   const [isRunning, setIsRunning] = useState(false);
 
+  const rainbowColors = [
+    "bg-rainbow-red",
+    "bg-rainbow-orange",
+    "bg-rainbow-yellow",
+    "bg-rainbow-green",
+    "bg-rainbow-cyan",
+    "bg-rainbow-blue",
+    "bg-rainbow-purple",
+  ];
+
   const fetchData = async () => {
     const [teamsRes, problemsRes] = await Promise.all([
       supabase.from("teams").select("*").order("team_number"),
@@ -145,8 +155,8 @@ const Scoreboard = () => {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {teams.map((team) => (
-                <TableRow key={team.id}>
+              {teams.map((team, index) => (
+                <TableRow key={team.id} className={rainbowColors[index % 7]}>
                   <TableCell className="font-medium">{team.team_name}</TableCell>
                   {problems.map((problem) => (
                     <TableCell key={problem.id} className="text-center">

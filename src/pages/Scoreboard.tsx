@@ -1,5 +1,7 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Play, Pause, RotateCcw } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -24,6 +26,8 @@ const Scoreboard = () => {
   const [teams, setTeams] = useState<Team[]>([]);
   const [problems, setProblems] = useState<Problem[]>([]);
   const [loading, setLoading] = useState(true);
+  const [timeLeft, setTimeLeft] = useState(30 * 60); // 30 minutes in seconds
+  const [isRunning, setIsRunning] = useState(false);
 
   const fetchData = async () => {
     const [teamsRes, problemsRes] = await Promise.all([
@@ -59,6 +63,33 @@ const Scoreboard = () => {
     };
   }, []);
 
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    
+    if (isRunning && timeLeft > 0) {
+      interval = setInterval(() => {
+        setTimeLeft((prev) => Math.max(0, prev - 1));
+      }, 1000);
+    }
+
+    return () => {
+      if (interval) clearInterval(interval);
+    };
+  }, [isRunning, timeLeft]);
+
+  const formatTime = (seconds: number) => {
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
+  };
+
+  const handleStart = () => setIsRunning(true);
+  const handlePause = () => setIsRunning(false);
+  const handleReset = () => {
+    setIsRunning(false);
+    setTimeLeft(30 * 60);
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -72,11 +103,32 @@ const Scoreboard = () => {
       <div className="max-w-7xl mx-auto space-y-8">
         <div className="text-center space-y-4">
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
-            Live Scoreboard
+            Estimathon
           </h1>
-          <p className="text-xl text-muted-foreground">
-            Real-time competition rankings
-          </p>
+          
+          <div className="flex items-center justify-center gap-4">
+            <div className="text-6xl font-mono font-bold">
+              {formatTime(timeLeft)}
+            </div>
+          </div>
+
+          <div className="flex items-center justify-center gap-2">
+            {!isRunning ? (
+              <Button onClick={handleStart} size="lg">
+                <Play className="w-5 h-5 mr-2" />
+                Start
+              </Button>
+            ) : (
+              <Button onClick={handlePause} size="lg" variant="secondary">
+                <Pause className="w-5 h-5 mr-2" />
+                Pause
+              </Button>
+            )}
+            <Button onClick={handleReset} size="lg" variant="outline">
+              <RotateCcw className="w-5 h-5 mr-2" />
+              Reset
+            </Button>
+          </div>
         </div>
 
         <div className="border rounded-lg overflow-auto">

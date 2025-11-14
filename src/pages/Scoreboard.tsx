@@ -172,28 +172,28 @@ const Scoreboard = () => {
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHead className="font-bold border-r border-black w-48">Team Name</TableHead>
+                <TableHead className="font-bold border-r border-black w-40">Team Name</TableHead>
                 {problems.map((problem) => (
-                  <TableHead key={problem.id} className="text-center font-bold border-r border-black w-24">
+                  <TableHead key={problem.id} className="text-center font-bold border-r border-black w-20">
                     {problem.problem_number}
                   </TableHead>
                 ))}
-                <TableHead className="text-center font-bold w-24">Score</TableHead>
+                <TableHead className="text-center font-bold w-20">Score</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {teams.map((team, index) => (
                 <TableRow key={team.id} className={rainbowColors[index % 7]}>
-                  <TableCell className="font-medium text-black border-r border-black h-16">{team.team_name}</TableCell>
+                  <TableCell className="font-medium text-black border-r border-black h-10 py-2">{team.team_name}</TableCell>
                   {problems.map((problem) => {
                     const incorrectCount = getIncorrectCount(team.id, problem.id);
                     return (
-                      <TableCell key={problem.id} className="text-center border-r border-black h-16">
+                      <TableCell key={problem.id} className="text-center border-r border-black h-10 py-2">
                         <div className="flex items-center justify-center h-full">
                           {incorrectCount > 0 && (
-                            <div className="bg-red-600 inline-flex items-center justify-center px-2 py-1 rounded">
+                            <div className="bg-red-600 inline-flex items-center justify-center px-1.5 py-0.5 rounded">
                               {Array.from({ length: incorrectCount }).map((_, i) => (
-                                <span key={i} className="text-black font-bold text-lg mx-0.5">✕</span>
+                                <span key={i} className="text-black font-bold text-base mx-0.5">✕</span>
                               ))}
                             </div>
                           )}
@@ -201,7 +201,7 @@ const Scoreboard = () => {
                       </TableCell>
                     );
                   })}
-                  <TableCell className="text-center font-bold text-black h-16">81920</TableCell>
+                  <TableCell className="text-center font-bold text-black h-10 py-2">81920</TableCell>
                 </TableRow>
               ))}
             </TableBody>

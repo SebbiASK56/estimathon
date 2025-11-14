@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Home, Settings, ScanLine, Trophy } from "lucide-react";
+import { Home, Settings, ScanLine, Trophy, ClipboardList } from "lucide-react";
 
 export const Navigation = () => {
   const location = useLocation();
@@ -34,6 +34,15 @@ export const Navigation = () => {
         >
           <ScanLine className="w-4 h-4 mr-2" />
           Submit
+        </Button>
+      </Link>
+      <Link to="/submissions">
+        <Button 
+          variant={isActive("/submissions") ? "default" : "outline"} 
+          size="sm"
+        >
+          <ClipboardList className="w-4 h-4 mr-2" />
+          Submissions
         </Button>
       </Link>
       <Link to="/scoreboard">

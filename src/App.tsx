@@ -7,6 +7,7 @@ import Index from "./pages/Index";
 import Setup from "./pages/Setup";
 import Scan from "./pages/Scan";
 import Scoreboard from "./pages/Scoreboard";
+import Submissions from "./pages/Submissions";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +23,7 @@ const App = () => (
           <Route path="/setup" element={<Setup />} />
           <Route path="/scan" element={<Scan />} />
           <Route path="/scoreboard" element={<Scoreboard />} />
+          <Route path="/submissions" element={<Submissions />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

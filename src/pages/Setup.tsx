@@ -9,53 +9,112 @@ import { useToast } from "@/hooks/use-toast";
 import { ArrowLeft, Plus } from "lucide-react";
 import { Link } from "react-router-dom";
 
+interface TeamInput {
+  name: string;
+}
+
+interface ProblemInput {
+  question: string;
+  answer: string;
+}
+
 const Setup = () => {
   const { toast } = useToast();
-  const [teamNumber, setTeamNumber] = useState("");
-  const [teamName, setTeamName] = useState("");
-  const [problemNumber, setProblemNumber] = useState("");
-  const [question, setQuestion] = useState("");
-  const [correctAnswer, setCorrectAnswer] = useState("");
+  const [numTeams, setNumTeams] = useState<number>(0);
+  const [teams, setTeams] = useState<TeamInput[]>([]);
+  const [numProblems, setNumProblems] = useState<number>(0);
+  const [problems, setProblems] = useState<ProblemInput[]>([]);
+  const [submitting, setSubmitting] = useState(false);
 
-  const addTeam = async () => {
-    if (!teamNumber || !teamName) {
-      toast({ title: "Please fill all fields", variant: "destructive" });
+  const generateTeamFields = (count: number) => {
+    const newCount = Math.max(0, Math.min(100, count));
+    setNumTeams(newCount);
+    setTeams(Array(newCount).fill(null).map(() => ({ name: "" })));
+  };
+
+  const generateProblemFields = (count: number) => {
+    const newCount = Math.max(0, Math.min(100, count));
+    setNumProblems(newCount);
+    setProblems(Array(newCount).fill(null).map(() => ({ question: "", answer: "" })));
+  };
+
+  const updateTeamName = (index: number, name: string) => {
+    const updated = [...teams];
+    updated[index].name = name;
+    setTeams(updated);
+  };
+
+  const updateProblem = (index: number, field: 'question' | 'answer', value: string) => {
+    const updated = [...problems];
+    updated[index][field] = value;
+    setProblems(updated);
+  };
+
+  const submitTeams = async () => {
+    if (teams.some(t => !t.name.trim())) {
+      toast({ title: "Please fill all team names", variant: "destructive" });
       return;
     }
 
-    const { error } = await supabase.from("teams").insert({
-      team_number: parseInt(teamNumber),
-      team_name: teamName,
-    });
+    setSubmitting(true);
+    try {
+      const teamRecords = teams.map((team, index) => ({
+        team_number: index + 1,
+        team_name: team.name.trim(),
+      }));
 
-    if (error) {
-      toast({ title: "Error adding team", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Team added successfully!" });
-      setTeamNumber("");
-      setTeamName("");
+      const { error } = await supabase.from("teams").insert(teamRecords);
+
+      if (error) throw error;
+
+      toast({ title: `Successfully added ${teams.length} teams!` });
+      setNumTeams(0);
+      setTeams([]);
+    } catch (error: any) {
+      toast({ 
+        title: "Error adding teams", 
+        description: error.message,
+        variant: "destructive" 
+      });
+    } finally {
+      setSubmitting(false);
     }
   };
 
-  const addProblem = async () => {
-    if (!problemNumber || !question || !correctAnswer) {
-      toast({ title: "Please fill all fields", variant: "destructive" });
+  const submitProblems = async () => {
+    if (problems.some(p => !p.question.trim() || !p.answer.trim())) {
+      toast({ title: "Please fill all questions and answers", variant: "destructive" });
       return;
     }
 
-    const { error } = await supabase.from("problems").insert({
-      problem_number: parseInt(problemNumber),
-      question,
-      correct_answer: parseFloat(correctAnswer),
-    });
+    if (problems.some(p => isNaN(parseFloat(p.answer)))) {
+      toast({ title: "All answers must be valid numbers", variant: "destructive" });
+      return;
+    }
 
-    if (error) {
-      toast({ title: "Error adding problem", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Problem added successfully!" });
-      setProblemNumber("");
-      setQuestion("");
-      setCorrectAnswer("");
+    setSubmitting(true);
+    try {
+      const problemRecords = problems.map((problem, index) => ({
+        problem_number: index + 1,
+        question: problem.question.trim(),
+        correct_answer: parseFloat(problem.answer),
+      }));
+
+      const { error } = await supabase.from("problems").insert(problemRecords);
+
+      if (error) throw error;
+
+      toast({ title: `Successfully added ${problems.length} problems!` });
+      setNumProblems(0);
+      setProblems([]);
+    } catch (error: any) {
+      toast({ 
+        title: "Error adding problems", 
+        description: error.message,
+        variant: "destructive" 
+      });
+    } finally {
+      setSubmitting(false);
     }
   };
 
@@ -72,84 +131,111 @@ const Setup = () => {
         </div>
 
         <div className="grid md:grid-cols-2 gap-8">
+          {/* Teams Section */}
           <Card className="p-6 space-y-6">
             <div className="flex items-center gap-3">
               <Plus className="w-6 h-6 text-primary" />
-              <h2 className="text-2xl font-bold">Add Team</h2>
+              <h2 className="text-2xl font-bold">Teams</h2>
             </div>
 
             <div className="space-y-4">
               <div>
-                <Label htmlFor="team-number">Team Number</Label>
+                <Label htmlFor="num-teams">Number of Teams</Label>
                 <Input
-                  id="team-number"
+                  id="num-teams"
                   type="number"
-                  value={teamNumber}
-                  onChange={(e) => setTeamNumber(e.target.value)}
-                  placeholder="e.g., 1"
+                  min="0"
+                  max="100"
+                  value={numTeams || ""}
+                  onChange={(e) => generateTeamFields(parseInt(e.target.value) || 0)}
+                  placeholder="e.g., 10"
                 />
               </div>
 
-              <div>
-                <Label htmlFor="team-name">Team Name</Label>
-                <Input
-                  id="team-name"
-                  value={teamName}
-                  onChange={(e) => setTeamName(e.target.value)}
-                  placeholder="e.g., The Estimators"
-                />
-              </div>
+              {teams.length > 0 && (
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {teams.map((team, index) => (
+                    <div key={index} className="flex gap-2 items-center">
+                      <span className="text-sm font-medium text-muted-foreground w-12">
+                        Team {index + 1}
+                      </span>
+                      <Input
+                        value={team.name}
+                        onChange={(e) => updateTeamName(index, e.target.value)}
+                        placeholder="Team name"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
 
-              <Button onClick={addTeam} className="w-full">
-                Add Team
-              </Button>
+              {teams.length > 0 && (
+                <Button 
+                  onClick={submitTeams} 
+                  className="w-full"
+                  disabled={submitting}
+                >
+                  {submitting ? "Submitting..." : `Add ${teams.length} Teams`}
+                </Button>
+              )}
             </div>
           </Card>
 
+          {/* Problems Section */}
           <Card className="p-6 space-y-6">
             <div className="flex items-center gap-3">
               <Plus className="w-6 h-6 text-primary" />
-              <h2 className="text-2xl font-bold">Add Problem</h2>
+              <h2 className="text-2xl font-bold">Problems</h2>
             </div>
 
             <div className="space-y-4">
               <div>
-                <Label htmlFor="problem-number">Problem Number</Label>
+                <Label htmlFor="num-problems">Number of Problems</Label>
                 <Input
-                  id="problem-number"
+                  id="num-problems"
                   type="number"
-                  value={problemNumber}
-                  onChange={(e) => setProblemNumber(e.target.value)}
-                  placeholder="e.g., 1"
+                  min="0"
+                  max="100"
+                  value={numProblems || ""}
+                  onChange={(e) => generateProblemFields(parseInt(e.target.value) || 0)}
+                  placeholder="e.g., 13"
                 />
               </div>
 
-              <div>
-                <Label htmlFor="question">Question</Label>
-                <Textarea
-                  id="question"
-                  value={question}
-                  onChange={(e) => setQuestion(e.target.value)}
-                  placeholder="Enter the estimation question..."
-                  rows={3}
-                />
-              </div>
+              {problems.length > 0 && (
+                <div className="space-y-4 max-h-96 overflow-y-auto">
+                  {problems.map((problem, index) => (
+                    <div key={index} className="space-y-2 p-3 border border-border rounded-lg">
+                      <div className="text-sm font-medium text-muted-foreground">
+                        Problem {index + 1}
+                      </div>
+                      <Textarea
+                        value={problem.question}
+                        onChange={(e) => updateProblem(index, 'question', e.target.value)}
+                        placeholder="Question..."
+                        rows={2}
+                      />
+                      <Input
+                        type="number"
+                        step="any"
+                        value={problem.answer}
+                        onChange={(e) => updateProblem(index, 'answer', e.target.value)}
+                        placeholder="Correct answer"
+                      />
+                    </div>
+                  ))}
+                </div>
+              )}
 
-              <div>
-                <Label htmlFor="correct-answer">Correct Answer</Label>
-                <Input
-                  id="correct-answer"
-                  type="number"
-                  step="any"
-                  value={correctAnswer}
-                  onChange={(e) => setCorrectAnswer(e.target.value)}
-                  placeholder="e.g., 42.5"
-                />
-              </div>
-
-              <Button onClick={addProblem} className="w-full">
-                Add Problem
-              </Button>
+              {problems.length > 0 && (
+                <Button 
+                  onClick={submitProblems} 
+                  className="w-full"
+                  disabled={submitting}
+                >
+                  {submitting ? "Submitting..." : `Add ${problems.length} Problems`}
+                </Button>
+              )}
             </div>
           </Card>
         </div>

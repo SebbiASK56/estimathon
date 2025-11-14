@@ -100,6 +100,24 @@ const Scoreboard = () => {
     return incorrectCount > 0 ? { incorrect: incorrectCount } : null;
   };
 
+  const getTotalScore = (teamId: string) => {
+    let sumOfScores = 0;
+    let unsolvedCount = 0;
+    
+    problems.forEach(problem => {
+      const result = getProblemScore(teamId, problem.id);
+      
+      if (typeof result === 'number') {
+        sumOfScores += result;
+      } else {
+        // Problem is unsolved (either no submission or only incorrect submissions)
+        unsolvedCount++;
+      }
+    });
+    
+    return (sumOfScores + 10) * Math.pow(2, unsolvedCount);
+  };
+
   useEffect(() => {
     fetchData();
 
@@ -230,7 +248,7 @@ const Scoreboard = () => {
                       </TableCell>
                     );
                   })}
-                  <TableCell className="text-center font-bold text-black h-10 py-2">81920</TableCell>
+                  <TableCell className="text-center font-bold text-black h-10 py-2">{getTotalScore(team.id)}</TableCell>
                 </TableRow>
               ))}
             </TableBody>

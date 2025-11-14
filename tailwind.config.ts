@@ -50,6 +50,15 @@ export default {
         gold: "hsl(var(--gold))",
         silver: "hsl(var(--silver))",
         bronze: "hsl(var(--bronze))",
+        rainbow: {
+          red: "hsl(var(--rainbow-red))",
+          orange: "hsl(var(--rainbow-orange))",
+          yellow: "hsl(var(--rainbow-yellow))",
+          green: "hsl(var(--rainbow-green))",
+          cyan: "hsl(var(--rainbow-cyan))",
+          blue: "hsl(var(--rainbow-blue))",
+          purple: "hsl(var(--rainbow-purple))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",

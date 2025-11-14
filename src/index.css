@@ -42,13 +42,13 @@ All colors MUST be HSL.
     --silver: 0 0% 70%;
     --bronze: 30 60% 50%;
     
-    --rainbow-red: 0 85% 65%;
-    --rainbow-orange: 30 90% 65%;
-    --rainbow-yellow: 50 95% 65%;
-    --rainbow-green: 140 70% 60%;
-    --rainbow-cyan: 185 85% 60%;
-    --rainbow-blue: 220 85% 65%;
-    --rainbow-purple: 270 75% 70%;
+    --rainbow-red: 0 70% 85%;
+    --rainbow-orange: 30 80% 85%;
+    --rainbow-yellow: 50 85% 88%;
+    --rainbow-green: 140 60% 85%;
+    --rainbow-cyan: 185 70% 85%;
+    --rainbow-blue: 220 70% 85%;
+    --rainbow-purple: 270 65% 88%;
     
     --gradient-primary: linear-gradient(135deg, hsl(189 94% 43%), hsl(189 94% 53%));
     --gradient-card: linear-gradient(135deg, hsl(220 25% 12%), hsl(220 25% 15%));

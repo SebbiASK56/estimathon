@@ -98,7 +98,8 @@ const Setup = () => {
 
     setSubmitting(true);
     try {
-      await supabase.from("teams").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      const { error: deleteError } = await supabase.from("teams").delete().gte("team_number", 0);
+      if (deleteError) throw deleteError;
       
       const teamRecords = teams.map((team, index) => ({
         team_number: index + 1,
@@ -130,7 +131,8 @@ const Setup = () => {
 
     setSubmitting(true);
     try {
-      await supabase.from("problems").delete().neq("id", "00000000-0000-0000-0000-000000000000");
+      const { error: deleteError } = await supabase.from("problems").delete().gte("problem_number", 0);
+      if (deleteError) throw deleteError;
       
       const problemRecords = problems.map((problem, index) => ({
         problem_number: index + 1,

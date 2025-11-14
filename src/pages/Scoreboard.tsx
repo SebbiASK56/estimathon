@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { Play, Pause, RotateCcw } from "lucide-react";
+import { Play, Pause, RotateCcw, Settings } from "lucide-react";
+import { Link } from "react-router-dom";
 import {
   Table,
   TableBody,
@@ -111,6 +112,15 @@ const Scoreboard = () => {
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
+        <div className="flex justify-end">
+          <Link to="/setup">
+            <Button variant="outline" size="sm">
+              <Settings className="w-4 h-4 mr-2" />
+              Setup
+            </Button>
+          </Link>
+        </div>
+        
         <div className="text-center space-y-4">
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
             Estimathon

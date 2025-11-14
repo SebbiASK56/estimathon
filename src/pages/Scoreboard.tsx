@@ -75,6 +75,31 @@ const Scoreboard = () => {
     ).length;
   };
 
+  const getProblemScore = (teamId: string, problemId: string) => {
+    const problem = problems.find(p => p.id === problemId);
+    if (!problem) return null;
+    
+    const teamSubmissions = submissions.filter(
+      s => s.team_id === teamId && s.problem_id === problemId
+    );
+    
+    // Find if there's a correct submission
+    const correctSubmission = teamSubmissions.find(
+      s => s.lower_bound <= problem.correct_answer && s.upper_bound >= problem.correct_answer
+    );
+    
+    if (correctSubmission) {
+      return Math.floor(correctSubmission.upper_bound / correctSubmission.lower_bound);
+    }
+    
+    // Count incorrect submissions
+    const incorrectCount = teamSubmissions.filter(
+      s => s.lower_bound > problem.correct_answer || s.upper_bound < problem.correct_answer
+    ).length;
+    
+    return incorrectCount > 0 ? { incorrect: incorrectCount } : null;
+  };
+
   useEffect(() => {
     fetchData();
 
@@ -186,16 +211,20 @@ const Scoreboard = () => {
                 <TableRow key={team.id} className={rainbowColors[index % 7]}>
                   <TableCell className="font-medium text-black border-r border-black h-10 py-2">{team.team_name}</TableCell>
                   {problems.map((problem) => {
-                    const incorrectCount = getIncorrectCount(team.id, problem.id);
+                    const result = getProblemScore(team.id, problem.id);
                     return (
                       <TableCell key={problem.id} className="text-center border-r border-black h-10 py-2">
                         <div className="flex items-center justify-center h-full">
-                          {incorrectCount > 0 && (
-                            <div className="bg-red-600 inline-flex items-center justify-center px-1.5 py-0.5 rounded">
-                              {Array.from({ length: incorrectCount }).map((_, i) => (
-                                <span key={i} className="text-black font-bold text-base mx-0.5">✕</span>
-                              ))}
-                            </div>
+                          {result !== null && (
+                            typeof result === 'number' ? (
+                              <span className="text-black font-bold text-base">{result}</span>
+                            ) : (
+                              <div className="bg-red-600 inline-flex items-center justify-center px-1.5 py-0.5 rounded">
+                                {Array.from({ length: result.incorrect }).map((_, i) => (
+                                  <span key={i} className="text-black font-bold text-base mx-0.5">✕</span>
+                                ))}
+                              </div>
+                            )
                           )}
                         </div>
                       </TableCell>

@@ -167,13 +167,13 @@ const Scoreboard = () => {
             <TableBody>
               {teams.map((team, index) => (
                 <TableRow key={team.id} className={rainbowColors[index % 7]}>
-                  <TableCell className="font-medium">{team.team_name}</TableCell>
+                  <TableCell className="font-medium text-black">{team.team_name}</TableCell>
                   {problems.map((problem) => (
-                    <TableCell key={problem.id} className="text-center">
+                    <TableCell key={problem.id} className="text-center text-black">
                       {/* Empty for now - will be filled with submission data */}
                     </TableCell>
                   ))}
-                  <TableCell className="text-center font-bold">81920</TableCell>
+                  <TableCell className="text-center font-bold text-black">81920</TableCell>
                 </TableRow>
               ))}
             </TableBody>

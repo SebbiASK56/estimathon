@@ -152,6 +152,24 @@ const Setup = () => {
     }
   };
 
+  const resetScoreboard = async () => {
+    if (!confirm("Are you sure you want to reset the scoreboard? This will delete all submissions and cannot be undone.")) {
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      const { error } = await supabase.from("submissions").delete().gte("id", "00000000-0000-0000-0000-000000000000");
+      if (error) throw error;
+
+      toast({ title: "Scoreboard reset successfully!" });
+    } catch (error: any) {
+      toast({ title: "Error resetting scoreboard", description: error.message, variant: "destructive" });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-6xl mx-auto space-y-8">
@@ -259,6 +277,25 @@ const Setup = () => {
             </Card>
           </div>
         )}
+
+        <Card className="p-6">
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <Save className="w-6 h-6 text-destructive" />
+              <h2 className="text-2xl font-bold">Danger Zone</h2>
+            </div>
+            <p className="text-muted-foreground">
+              Reset the scoreboard to clear all submissions. This action cannot be undone.
+            </p>
+            <Button 
+              onClick={resetScoreboard} 
+              variant="destructive"
+              disabled={submitting}
+            >
+              {submitting ? "Resetting..." : "Reset Scoreboard"}
+            </Button>
+          </div>
+        </Card>
       </div>
     </div>
   );

@@ -191,14 +191,12 @@ const Setup = () => {
                 {teams.length > 0 && (
                   <div className="space-y-3 max-h-96 overflow-y-auto">
                     {teams.map((team, index) => (
-                      <div key={index} className="flex gap-2 items-center">
-                        <span className="text-sm font-medium text-muted-foreground w-12">
-                          Team {index + 1}
-                        </span>
+                      <div key={index} className="flex items-center">
                         <Input
                           value={team.name}
                           onChange={(e) => updateTeamName(index, e.target.value)}
                           placeholder="Team name"
+                          className="w-full"
                         />
                       </div>
                     ))}

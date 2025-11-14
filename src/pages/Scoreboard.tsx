@@ -21,11 +21,20 @@ interface Team {
 interface Problem {
   id: string;
   problem_number: number;
+  correct_answer: number;
+}
+
+interface Submission {
+  team_id: string;
+  problem_id: string;
+  lower_bound: number;
+  upper_bound: number;
 }
 
 const Scoreboard = () => {
   const [teams, setTeams] = useState<Team[]>([]);
   const [problems, setProblems] = useState<Problem[]>([]);
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState(30 * 60); // 30 minutes in seconds
   const [isRunning, setIsRunning] = useState(false);
@@ -41,14 +50,29 @@ const Scoreboard = () => {
   ];
 
   const fetchData = async () => {
-    const [teamsRes, problemsRes] = await Promise.all([
+    const [teamsRes, problemsRes, submissionsRes] = await Promise.all([
       supabase.from("teams").select("*").order("team_number"),
       supabase.from("problems").select("*").order("problem_number"),
+      supabase.from("submissions").select("*"),
     ]);
 
     if (teamsRes.data) setTeams(teamsRes.data);
     if (problemsRes.data) setProblems(problemsRes.data);
+    if (submissionsRes.data) setSubmissions(submissionsRes.data);
     setLoading(false);
+  };
+
+  const getIncorrectCount = (teamId: string, problemId: string) => {
+    const problem = problems.find(p => p.id === problemId);
+    if (!problem) return 0;
+    
+    const teamSubmissions = submissions.filter(
+      s => s.team_id === teamId && s.problem_id === problemId
+    );
+    
+    return teamSubmissions.filter(
+      s => s.lower_bound > problem.correct_answer || s.upper_bound < problem.correct_answer
+    ).length;
   };
 
   useEffect(() => {
@@ -161,11 +185,20 @@ const Scoreboard = () => {
               {teams.map((team, index) => (
                 <TableRow key={team.id} className={rainbowColors[index % 7]}>
                   <TableCell className="font-medium text-black">{team.team_name}</TableCell>
-                  {problems.map((problem) => (
-                    <TableCell key={problem.id} className="text-center text-black">
-                      {/* Empty for now - will be filled with submission data */}
-                    </TableCell>
-                  ))}
+                  {problems.map((problem) => {
+                    const incorrectCount = getIncorrectCount(team.id, problem.id);
+                    return (
+                      <TableCell key={problem.id} className="text-center">
+                        {incorrectCount > 0 && (
+                          <div className="bg-red-600 inline-flex items-center justify-center px-2 py-1 rounded">
+                            {Array.from({ length: incorrectCount }).map((_, i) => (
+                              <span key={i} className="text-black font-bold text-lg mx-0.5">✕</span>
+                            ))}
+                          </div>
+                        )}
+                      </TableCell>
+                    );
+                  })}
                   <TableCell className="text-center font-bold text-black">81920</TableCell>
                 </TableRow>
               ))}

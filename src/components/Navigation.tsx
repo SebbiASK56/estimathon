@@ -1,0 +1,50 @@
+import { Link, useLocation } from "react-router-dom";
+import { Button } from "@/components/ui/button";
+import { Home, Settings, ScanLine, Trophy } from "lucide-react";
+
+export const Navigation = () => {
+  const location = useLocation();
+  
+  const isActive = (path: string) => location.pathname === path;
+  
+  return (
+    <nav className="flex gap-2 mb-8">
+      <Link to="/">
+        <Button 
+          variant={isActive("/") ? "default" : "outline"} 
+          size="sm"
+        >
+          <Home className="w-4 h-4 mr-2" />
+          Home
+        </Button>
+      </Link>
+      <Link to="/setup">
+        <Button 
+          variant={isActive("/setup") ? "default" : "outline"} 
+          size="sm"
+        >
+          <Settings className="w-4 h-4 mr-2" />
+          Setup
+        </Button>
+      </Link>
+      <Link to="/scan">
+        <Button 
+          variant={isActive("/scan") ? "default" : "outline"} 
+          size="sm"
+        >
+          <ScanLine className="w-4 h-4 mr-2" />
+          Submit
+        </Button>
+      </Link>
+      <Link to="/scoreboard">
+        <Button 
+          variant={isActive("/scoreboard") ? "default" : "outline"} 
+          size="sm"
+        >
+          <Trophy className="w-4 h-4 mr-2" />
+          Scoreboard
+        </Button>
+      </Link>
+    </nav>
+  );
+};

@@ -5,8 +5,8 @@ import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Camera, CheckCircle } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Camera, CheckCircle } from "lucide-react";
+import { Navigation } from "@/components/Navigation";
 
 const Scan = () => {
   const { toast } = useToast();
@@ -117,14 +117,9 @@ const Scan = () => {
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-2xl mx-auto space-y-6">
-        <div className="flex items-center gap-4">
-          <Link to="/">
-            <Button variant="secondary" size="icon">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-          </Link>
-          <h1 className="text-3xl md:text-4xl font-bold">Scan Submission</h1>
-        </div>
+        <Navigation />
+        
+        <h1 className="text-3xl md:text-4xl font-bold">Scan Submission</h1>
 
         <Card className="p-6 space-y-6">
           <div className="space-y-4">

@@ -6,8 +6,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { ArrowLeft, Save } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Save } from "lucide-react";
+import { Navigation } from "@/components/Navigation";
 
 interface TeamData {
   id: string;
@@ -155,14 +155,9 @@ const Setup = () => {
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-6xl mx-auto space-y-8">
-        <div className="flex items-center gap-4">
-          <Link to="/">
-            <Button variant="secondary" size="icon">
-              <ArrowLeft className="w-5 h-5" />
-            </Button>
-          </Link>
-          <h1 className="text-4xl font-bold">Competition Setup</h1>
-        </div>
+        <Navigation />
+        
+        <h1 className="text-4xl font-bold">Competition Setup</h1>
 
         {loading ? (
           <div className="text-center py-12">Loading...</div>

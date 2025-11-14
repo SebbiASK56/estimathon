@@ -159,7 +159,7 @@ const Setup = () => {
 
     setSubmitting(true);
     try {
-      const { error } = await supabase.from("submissions").delete().gte("id", "00000000-0000-0000-0000-000000000000");
+      const { error } = await supabase.from("submissions").delete().neq("id", "00000000-0000-0000-0000-000000000000");
       if (error) throw error;
 
       toast({ title: "Scoreboard reset successfully!" });

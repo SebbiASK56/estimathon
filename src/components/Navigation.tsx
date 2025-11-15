@@ -1,14 +1,22 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Home, Settings, ScanLine, Trophy, ClipboardList } from "lucide-react";
+import { Home, Settings, ScanLine, Trophy, ClipboardList, LogOut } from "lucide-react";
+import { usePassword } from "@/contexts/PasswordContext";
 
 export const Navigation = () => {
   const location = useLocation();
+  const { logout } = usePassword();
   
   const isActive = (path: string) => location.pathname === path;
   
+  const handleLogout = () => {
+    if (confirm("Are you sure you want to log out?")) {
+      logout();
+    }
+  };
+  
   return (
-    <nav className="flex gap-2 mb-8">
+    <nav className="flex gap-2 mb-8 flex-wrap">
       <Link to="/">
         <Button 
           variant={isActive("/") ? "default" : "outline"} 
@@ -54,6 +62,16 @@ export const Navigation = () => {
           Scoreboard
         </Button>
       </Link>
+      <div className="ml-auto">
+        <Button 
+          variant="outline" 
+          size="sm"
+          onClick={handleLogout}
+        >
+          <LogOut className="w-4 h-4 mr-2" />
+          Logout
+        </Button>
+      </div>
     </nav>
   );
 };

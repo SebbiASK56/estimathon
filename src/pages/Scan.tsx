@@ -46,10 +46,7 @@ const Scan = () => {
 
   const calculateScore = (lower: number, upper: number, correct: number): number => {
     if (lower > correct || upper < correct) return 0;
-    const interval = upper - lower;
-    const baseScore = 100;
-    const penalty = Math.log(1 + interval) * 10;
-    return Math.max(0, baseScore - penalty);
+    return Math.floor(upper / lower);
   };
 
   const submitAnswer = async () => {

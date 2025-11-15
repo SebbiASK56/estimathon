@@ -54,7 +54,7 @@ const Scoreboard = () => {
     const [teamsRes, problemsRes, submissionsRes] = await Promise.all([
       supabase.from("teams").select("*").order("team_number"),
       supabase.from("problems").select("*").order("problem_number"),
-      supabase.from("submissions").select("*"),
+      supabase.from("submissions").select("*, submitted_at"),
     ]);
 
     if (teamsRes.data) setTeams(teamsRes.data);
@@ -92,17 +92,35 @@ const Scoreboard = () => {
     );
     const lastSubmission = sortedSubmissions[0];
     
+    // Ensure bounds are numbers
+    const lowerBound = Number(lastSubmission.lower_bound);
+    const upperBound = Number(lastSubmission.upper_bound);
+    const correctAnswer = Number(problem.correct_answer);
+    
+    // Debug logging for team 2, problem 2
+    const team = teams.find(t => t.id === teamId);
+    if (team?.team_number === 2 && problem.problem_number === 2) {
+      console.log('Team 2, Problem 2 Debug:', {
+        totalSubmissions: teamSubmissions.length,
+        lastSubmission,
+        lower: lowerBound,
+        upper: upperBound,
+        ratio: upperBound / lowerBound,
+        floor: Math.floor(upperBound / lowerBound),
+        correctAnswer
+      });
+    }
+    
     // Check if the last submission is correct
-    const isCorrect = lastSubmission.lower_bound <= problem.correct_answer && 
-                     lastSubmission.upper_bound >= problem.correct_answer;
+    const isCorrect = lowerBound <= correctAnswer && upperBound >= correctAnswer;
     
     if (isCorrect) {
-      return Math.floor(lastSubmission.upper_bound / lastSubmission.lower_bound);
+      return Math.floor(upperBound / lowerBound);
     }
     
     // If incorrect, count all incorrect submissions (for display purposes)
     const incorrectCount = teamSubmissions.filter(
-      s => s.lower_bound > problem.correct_answer || s.upper_bound < problem.correct_answer
+      s => Number(s.lower_bound) > correctAnswer || Number(s.upper_bound) < correctAnswer
     ).length;
     
     return { incorrect: incorrectCount };

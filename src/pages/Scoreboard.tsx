@@ -29,6 +29,7 @@ interface Submission {
   problem_id: string;
   lower_bound: number;
   upper_bound: number;
+  submitted_at: string;
 }
 
 const Scoreboard = () => {
@@ -83,21 +84,28 @@ const Scoreboard = () => {
       s => s.team_id === teamId && s.problem_id === problemId
     );
     
-    // Find if there's a correct submission
-    const correctSubmission = teamSubmissions.find(
-      s => s.lower_bound <= problem.correct_answer && s.upper_bound >= problem.correct_answer
-    );
+    if (teamSubmissions.length === 0) return null;
     
-    if (correctSubmission) {
-      return Math.floor(correctSubmission.upper_bound / correctSubmission.lower_bound);
+    // Sort by submitted_at and get the most recent submission
+    const sortedSubmissions = [...teamSubmissions].sort(
+      (a, b) => new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime()
+    );
+    const lastSubmission = sortedSubmissions[0];
+    
+    // Check if the last submission is correct
+    const isCorrect = lastSubmission.lower_bound <= problem.correct_answer && 
+                     lastSubmission.upper_bound >= problem.correct_answer;
+    
+    if (isCorrect) {
+      return Math.floor(lastSubmission.upper_bound / lastSubmission.lower_bound);
     }
     
-    // Count incorrect submissions
+    // If incorrect, count all incorrect submissions (for display purposes)
     const incorrectCount = teamSubmissions.filter(
       s => s.lower_bound > problem.correct_answer || s.upper_bound < problem.correct_answer
     ).length;
     
-    return incorrectCount > 0 ? { incorrect: incorrectCount } : null;
+    return { incorrect: incorrectCount };
   };
 
   const getTotalScore = (teamId: string) => {

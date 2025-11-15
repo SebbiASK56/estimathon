@@ -227,7 +227,7 @@ const Scoreboard = () => {
             <TableBody>
               {teams.map((team, index) => (
                 <TableRow key={team.id} className={rainbowColors[index % 7]}>
-                  <TableCell className="font-medium text-black border-r border-black h-10 py-2">{team.team_name}</TableCell>
+                  <TableCell className="font-medium text-black border-r border-black h-10 py-2">{team.team_number}. {team.team_name}</TableCell>
                   {problems.map((problem) => {
                     const result = getProblemScore(team.id, problem.id);
                     return (

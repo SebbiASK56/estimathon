@@ -97,20 +97,6 @@ const Scoreboard = () => {
     const upperBound = Number(lastSubmission.upper_bound);
     const correctAnswer = Number(problem.correct_answer);
     
-    // Debug logging for team 2, problem 2
-    const team = teams.find(t => t.id === teamId);
-    if (team?.team_number === 2 && problem.problem_number === 2) {
-      console.log('Team 2, Problem 2 Debug:', {
-        totalSubmissions: teamSubmissions.length,
-        lastSubmission,
-        lower: lowerBound,
-        upper: upperBound,
-        ratio: upperBound / lowerBound,
-        floor: Math.floor(upperBound / lowerBound),
-        correctAnswer
-      });
-    }
-    
     // Check if the last submission is correct
     const isCorrect = lowerBound <= correctAnswer && upperBound >= correctAnswer;
     

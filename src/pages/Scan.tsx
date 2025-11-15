@@ -1,11 +1,11 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { Camera, CheckCircle } from "lucide-react";
+import { CheckCircle } from "lucide-react";
 import { Navigation } from "@/components/Navigation";
 
 const Scan = () => {
@@ -15,34 +15,6 @@ const Scan = () => {
   const [lowerBound, setLowerBound] = useState("");
   const [upperBound, setUpperBound] = useState("");
   const [processing, setProcessing] = useState(false);
-  const videoRef = useRef<HTMLVideoElement>(null);
-  const [cameraActive, setCameraActive] = useState(false);
-
-  const startCamera = async () => {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { facingMode: "environment" } 
-      });
-      if (videoRef.current) {
-        videoRef.current.srcObject = stream;
-        setCameraActive(true);
-      }
-    } catch (error) {
-      toast({ 
-        title: "Camera access denied", 
-        description: "Please allow camera access to scan slips",
-        variant: "destructive" 
-      });
-    }
-  };
-
-  const stopCamera = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
-      tracks.forEach(track => track.stop());
-      setCameraActive(false);
-    }
-  };
 
   const calculateScore = (lower: number, upper: number, correct: number): number => {
     if (lower > correct || upper < correct) return 0;
@@ -120,97 +92,68 @@ const Scan = () => {
 
         <Card className="p-6 space-y-6">
           <div className="space-y-4">
-            <div className="aspect-video bg-muted rounded-lg overflow-hidden relative">
-              {cameraActive ? (
-                <video
-                  ref={videoRef}
-                  autoPlay
-                  playsInline
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full flex items-center justify-center">
-                  <Camera className="w-16 h-16 text-muted-foreground" />
-                </div>
-              )}
+            <div>
+              <Label htmlFor="team-number">Team Number</Label>
+              <Input
+                id="team-number"
+                type="number"
+                value={teamNumber}
+                onChange={(e) => setTeamNumber(e.target.value)}
+                placeholder="e.g., 1"
+              />
             </div>
 
-            <Button
-              onClick={cameraActive ? stopCamera : startCamera}
-              variant={cameraActive ? "destructive" : "secondary"}
+            <div>
+              <Label htmlFor="problem-number">Problem Number</Label>
+              <Input
+                id="problem-number"
+                type="number"
+                value={problemNumber}
+                onChange={(e) => setProblemNumber(e.target.value)}
+                placeholder="e.g., 1"
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="lower-bound">Lower Bound</Label>
+                <Input
+                  id="lower-bound"
+                  type="number"
+                  step="any"
+                  value={lowerBound}
+                  onChange={(e) => setLowerBound(e.target.value)}
+                  placeholder="e.g., 10"
+                />
+              </div>
+
+              <div>
+                <Label htmlFor="upper-bound">Upper Bound</Label>
+                <Input
+                  id="upper-bound"
+                  type="number"
+                  step="any"
+                  value={upperBound}
+                  onChange={(e) => setUpperBound(e.target.value)}
+                  placeholder="e.g., 50"
+                />
+              </div>
+            </div>
+
+            <Button 
+              onClick={submitAnswer} 
               className="w-full"
+              disabled={processing}
             >
-              {cameraActive ? "Stop Camera" : "Start Camera"}
+              {processing ? (
+                "Processing..."
+              ) : (
+                <>
+                  <CheckCircle className="w-4 h-4 mr-2" />
+                  Submit Answer
+                </>
+              )}
             </Button>
-
-            <div className="pt-4 border-t space-y-4">
-              <p className="text-sm text-muted-foreground">
-                Camera scanning with OCR coming soon! For now, manually enter the values:
-              </p>
-
-              <div>
-                <Label htmlFor="team-number">Team Number</Label>
-                <Input
-                  id="team-number"
-                  type="number"
-                  value={teamNumber}
-                  onChange={(e) => setTeamNumber(e.target.value)}
-                  placeholder="e.g., 1"
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="problem-number">Problem Number</Label>
-                <Input
-                  id="problem-number"
-                  type="number"
-                  value={problemNumber}
-                  onChange={(e) => setProblemNumber(e.target.value)}
-                  placeholder="e.g., 1"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="lower-bound">Lower Bound</Label>
-                  <Input
-                    id="lower-bound"
-                    type="number"
-                    step="any"
-                    value={lowerBound}
-                    onChange={(e) => setLowerBound(e.target.value)}
-                    placeholder="e.g., 10"
-                  />
-                </div>
-
-                <div>
-                  <Label htmlFor="upper-bound">Upper Bound</Label>
-                  <Input
-                    id="upper-bound"
-                    type="number"
-                    step="any"
-                    value={upperBound}
-                    onChange={(e) => setUpperBound(e.target.value)}
-                    placeholder="e.g., 50"
-                  />
-                </div>
-              </div>
-
-              <Button 
-                onClick={submitAnswer} 
-                className="w-full"
-                disabled={processing}
-              >
-                {processing ? (
-                  "Processing..."
-                ) : (
-                  <>
-                    <CheckCircle className="w-4 h-4 mr-2" />
-                    Submit Answer
-                  </>
-                )}
-              </Button>
-            </div>
           </div>
         </Card>
       </div>

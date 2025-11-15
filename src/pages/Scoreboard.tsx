@@ -130,6 +130,16 @@ const Scoreboard = () => {
     return (sumOfScores + 10) * Math.pow(2, unsolvedCount);
   };
 
+  const getTeamRanking = (teamId: string) => {
+    const teamScores = teams.map(team => ({
+      id: team.id,
+      score: getTotalScore(team.id)
+    })).sort((a, b) => a.score - b.score); // Lower is better
+    
+    const rank = teamScores.findIndex(t => t.id === teamId) + 1;
+    return rank;
+  };
+
   useEffect(() => {
     fetchData();
 
@@ -260,7 +270,22 @@ const Scoreboard = () => {
                       </TableCell>
                     );
                   })}
-                  <TableCell className="text-center font-bold text-black h-10 py-2">{getTotalScore(team.id)}</TableCell>
+                  <TableCell className="text-center font-bold text-black h-10 py-2">
+                    {(() => {
+                      const score = getTotalScore(team.id);
+                      const rank = getTeamRanking(team.id);
+                      const rankColors = {
+                        1: "bg-yellow-400 text-black px-3 py-1 rounded-md font-extrabold text-lg shadow-md",
+                        2: "bg-gray-300 text-black px-3 py-1 rounded-md font-extrabold text-lg shadow-md",
+                        3: "bg-amber-600 text-white px-3 py-1 rounded-md font-extrabold text-lg shadow-md"
+                      };
+                      return (
+                        <span className={rank <= 3 ? rankColors[rank as 1 | 2 | 3] : ""}>
+                          {score}
+                        </span>
+                      );
+                    })()}
+                  </TableCell>
                 </TableRow>
               ))}
             </TableBody>

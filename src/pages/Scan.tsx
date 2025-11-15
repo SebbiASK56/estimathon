@@ -95,7 +95,7 @@ const Scan = () => {
 
       toast({ 
         title: "Submission recorded!", 
-        description: `Score: ${score.toFixed(1)} points`,
+        description: score === 0 ? "Incorrect" : `Score: ${Math.floor(score)}`,
         duration: 3000,
       });
 

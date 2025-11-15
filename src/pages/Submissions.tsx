@@ -31,6 +31,7 @@ const Submissions = () => {
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editValues, setEditValues] = useState({ lower_bound: 0, upper_bound: 0 });
+  const [teamFilter, setTeamFilter] = useState<string>("");
 
   const fetchSubmissions = async () => {
     setLoading(true);
@@ -117,6 +118,11 @@ const Submissions = () => {
     }
   };
 
+  const filteredSubmissions = submissions.filter(submission => {
+    if (!teamFilter) return true;
+    return submission.teams?.team_number.toString() === teamFilter;
+  });
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -132,9 +138,25 @@ const Submissions = () => {
 
         <h1 className="text-4xl font-bold">Manage Submissions</h1>
 
-        {submissions.length === 0 ? (
+        <div className="flex items-center gap-4">
+          <label className="text-sm font-medium">Filter by Team:</label>
+          <Input
+            type="text"
+            placeholder="Enter team number..."
+            value={teamFilter}
+            onChange={(e) => setTeamFilter(e.target.value)}
+            className="max-w-xs"
+          />
+          {teamFilter && (
+            <Button variant="outline" onClick={() => setTeamFilter("")}>
+              Clear Filter
+            </Button>
+          )}
+        </div>
+
+        {filteredSubmissions.length === 0 ? (
           <div className="text-center py-12 text-muted-foreground">
-            No submissions yet
+            {teamFilter ? `No submissions found for team ${teamFilter}` : "No submissions yet"}
           </div>
         ) : (
           <div className="border rounded-lg overflow-auto">
@@ -150,8 +172,8 @@ const Submissions = () => {
                   <TableHead className="w-32 text-center">Actions</TableHead>
                 </TableRow>
               </TableHeader>
-              <TableBody>
-                {submissions.map((submission) => (
+            <TableBody>
+              {filteredSubmissions.map((submission) => (
                   <TableRow key={submission.id}>
                     <TableCell>{submission.teams?.team_number}</TableCell>
                     <TableCell>{submission.teams?.team_name}</TableCell>

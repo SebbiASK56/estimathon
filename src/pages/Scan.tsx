@@ -116,7 +116,7 @@ const Scan = () => {
       <div className="max-w-2xl mx-auto space-y-6">
         <Navigation />
         
-        <h1 className="text-3xl md:text-4xl font-bold">Scan Submission</h1>
+        <h1 className="text-3xl md:text-4xl font-bold">Submit Answer</h1>
 
         <Card className="p-6 space-y-6">
           <div className="space-y-4">

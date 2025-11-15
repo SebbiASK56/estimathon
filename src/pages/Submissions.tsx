@@ -108,13 +108,25 @@ const Submissions = () => {
   const deleteSubmission = async (id: string) => {
     if (!confirm("Are you sure you want to delete this submission?")) return;
 
-    const { error } = await supabase.from("submissions").delete().eq("id", id);
+    try {
+      console.log('Attempting to delete submission:', id);
+      const { error } = await supabase.from("submissions").delete().eq("id", id);
 
-    if (error) {
-      toast({ title: "Error deleting submission", description: error.message, variant: "destructive" });
-    } else {
-      toast({ title: "Submission deleted successfully!" });
-      fetchSubmissions();
+      if (error) {
+        console.error('Delete error:', error);
+        toast({ title: "Error deleting submission", description: error.message, variant: "destructive" });
+      } else {
+        console.log('Delete successful');
+        toast({ title: "Submission deleted successfully!" });
+        await fetchSubmissions();
+      }
+    } catch (err) {
+      console.error('Unexpected error during delete:', err);
+      toast({ 
+        title: "Error deleting submission", 
+        description: err instanceof Error ? err.message : "Unknown error occurred",
+        variant: "destructive" 
+      });
     }
   };
 

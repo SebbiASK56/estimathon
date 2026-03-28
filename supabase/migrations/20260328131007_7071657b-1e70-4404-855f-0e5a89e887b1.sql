@@ -1,0 +1,1 @@
+ALTER TABLE public.timer_state ADD COLUMN submissions_open boolean NOT NULL DEFAULT true;

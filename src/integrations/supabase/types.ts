@@ -107,6 +107,27 @@ export type Database = {
         }
         Relationships: []
       }
+      timer_state: {
+        Row: {
+          id: string
+          is_running: boolean
+          last_updated_at: string
+          time_left: number
+        }
+        Insert: {
+          id?: string
+          is_running?: boolean
+          last_updated_at?: string
+          time_left?: number
+        }
+        Update: {
+          id?: string
+          is_running?: boolean
+          last_updated_at?: string
+          time_left?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -220,6 +220,22 @@ const Setup = () => {
                     }}
                   >
                     Populate Defaults
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const input = prompt("Paste CSV (team_name,passphrase per line):");
+                      if (!input) return;
+                      const lines = input.trim().split("\n").filter(l => l.trim());
+                      const parsed = lines.map(line => {
+                        const [name, passphrase] = line.split(",").map(s => s.trim());
+                        return { id: "", name: name || "", passphrase: passphrase || "" };
+                      });
+                      if (parsed.length > 0) setTeams(parsed);
+                    }}
+                  >
+                    Import CSV
                   </Button>
                 </div>
 

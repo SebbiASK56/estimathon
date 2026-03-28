@@ -31,6 +31,18 @@ const Scan = () => {
       return;
     }
 
+    // Check if submissions are open
+    const { data: timerData } = await supabase
+      .from("timer_state")
+      .select("submissions_open")
+      .limit(1)
+      .single();
+
+    if (timerData && !(timerData as any).submissions_open) {
+      toast({ title: "Submissions are closed", variant: "destructive" });
+      return;
+    }
+
     const lower = parseFloat(lowerBound);
     const upper = parseFloat(upperBound);
 

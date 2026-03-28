@@ -3,7 +3,7 @@ import { usePassword } from "@/contexts/PasswordContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Lock, Settings, ClipboardList, Play, Pause, RotateCcw } from "lucide-react";
+import { Lock, Settings, ClipboardList, Play, Pause, RotateCcw, ShieldCheck, ShieldOff } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -15,6 +15,7 @@ const Admin = () => {
   const [timeLeft, setTimeLeft] = useState(30 * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [timerLoaded, setTimerLoaded] = useState(false);
+  const [submissionsOpen, setSubmissionsOpen] = useState(true);
   const lastUpdatedRef = useRef<string | null>(null);
 
   const fetchTimerState = async () => {
@@ -38,6 +39,7 @@ const Admin = () => {
         setIsRunning(false);
       }
       lastUpdatedRef.current = data.id;
+      setSubmissionsOpen(data.submissions_open ?? true);
       setTimerLoaded(true);
     }
   };
@@ -67,6 +69,15 @@ const Admin = () => {
     setIsRunning(false);
     setTimeLeft(30 * 60);
     await updateTimerState(false, 30 * 60);
+  };
+
+  const toggleSubmissions = async () => {
+    const newVal = !submissionsOpen;
+    setSubmissionsOpen(newVal);
+    await supabase
+      .from("timer_state")
+      .update({ submissions_open: newVal } as any)
+      .not("id", "is", null);
   };
 
   useEffect(() => {
@@ -161,6 +172,28 @@ const Admin = () => {
                 Reset
               </Button>
             </div>
+          </Card>
+        )}
+
+        {timerLoaded && (
+          <Card className="p-6 space-y-4">
+            <h2 className="text-xl font-bold">Submissions</h2>
+            <div className="flex items-center justify-center gap-3">
+              {submissionsOpen ? (
+                <Button onClick={toggleSubmissions} size="lg" variant="destructive" className="rounded-full px-8">
+                  <ShieldOff className="w-5 h-5 mr-2" />
+                  Close Submissions
+                </Button>
+              ) : (
+                <Button onClick={toggleSubmissions} size="lg" className="rounded-full px-8">
+                  <ShieldCheck className="w-5 h-5 mr-2" />
+                  Open Submissions
+                </Button>
+              )}
+            </div>
+            <p className="text-sm text-muted-foreground">
+              Submissions are currently <span className="font-semibold">{submissionsOpen ? "open" : "closed"}</span>
+            </p>
           </Card>
         )}
 

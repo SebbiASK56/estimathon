@@ -6,7 +6,7 @@ import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { CheckCircle } from "lucide-react";
-import { Navigation } from "@/components/Navigation";
+import { PublicNavigation } from "@/components/PublicNavigation";
 
 const Scan = () => {
   const { toast } = useToast();
@@ -86,7 +86,7 @@ const Scan = () => {
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-2xl mx-auto space-y-6">
-        <Navigation />
+        <PublicNavigation />
         
         <h1 className="text-3xl md:text-4xl font-bold">Submit Answer</h1>
 

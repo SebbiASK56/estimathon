@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Save } from "lucide-react";
-import { Navigation } from "@/components/Navigation";
+import { AdminNavigation } from "@/components/AdminNavigation";
 
 interface TeamData {
   id: string;
@@ -173,7 +173,7 @@ const Setup = () => {
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-6xl mx-auto space-y-8">
-        <Navigation />
+        <AdminNavigation />
         
         <h1 className="text-4xl font-bold">Competition Setup</h1>
 

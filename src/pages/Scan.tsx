@@ -62,8 +62,8 @@ const Scan = () => {
 
       if (error) throw error;
 
-      toast({ 
-        title: "Submission recorded!", 
+      toast({
+        title: "Submission recorded!",
         description: score === 0 ? "Incorrect" : `Score: ${Math.floor(score)}`,
         duration: 3000,
       });
@@ -73,10 +73,10 @@ const Scan = () => {
       setLowerBound("");
       setUpperBound("");
     } catch (error: any) {
-      toast({ 
-        title: "Error submitting answer", 
+      toast({
+        title: "Error submitting answer",
         description: error.message,
-        variant: "destructive" 
+        variant: "destructive",
       });
     } finally {
       setProcessing(false);
@@ -85,38 +85,40 @@ const Scan = () => {
 
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
-      <div className="max-w-2xl mx-auto space-y-6">
+      <div className="max-w-xl mx-auto space-y-6">
         <PublicNavigation />
-        
-        <h1 className="text-3xl md:text-4xl font-bold">Submit Answer</h1>
 
-        <Card className="p-6 space-y-6">
-          <div className="space-y-4">
+        <h1 className="text-4xl md:text-5xl font-bold tracking-tight">Submit Answer</h1>
+
+        <Card className="p-6 space-y-6 shadow-md border">
+          <div className="space-y-5">
             <div>
-              <Label htmlFor="team-number">Team Number</Label>
+              <Label htmlFor="team-number" className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Team Number</Label>
               <Input
                 id="team-number"
                 type="number"
                 value={teamNumber}
                 onChange={(e) => setTeamNumber(e.target.value)}
                 placeholder="e.g., 1"
+                className="mt-1"
               />
             </div>
 
             <div>
-              <Label htmlFor="problem-number">Problem Number</Label>
+              <Label htmlFor="problem-number" className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Problem Number</Label>
               <Input
                 id="problem-number"
                 type="number"
                 value={problemNumber}
                 onChange={(e) => setProblemNumber(e.target.value)}
                 placeholder="e.g., 1"
+                className="mt-1"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <Label htmlFor="lower-bound">Lower Bound</Label>
+                <Label htmlFor="lower-bound" className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Lower Bound</Label>
                 <Input
                   id="lower-bound"
                   type="number"
@@ -124,11 +126,12 @@ const Scan = () => {
                   value={lowerBound}
                   onChange={(e) => setLowerBound(e.target.value)}
                   placeholder="e.g., 10"
+                  className="mt-1"
                 />
               </div>
 
               <div>
-                <Label htmlFor="upper-bound">Upper Bound</Label>
+                <Label htmlFor="upper-bound" className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Upper Bound</Label>
                 <Input
                   id="upper-bound"
                   type="number"
@@ -136,13 +139,15 @@ const Scan = () => {
                   value={upperBound}
                   onChange={(e) => setUpperBound(e.target.value)}
                   placeholder="e.g., 50"
+                  className="mt-1"
                 />
               </div>
             </div>
 
-            <Button 
-              onClick={submitAnswer} 
+            <Button
+              onClick={submitAnswer}
               className="w-full"
+              size="lg"
               disabled={processing}
             >
               {processing ? (

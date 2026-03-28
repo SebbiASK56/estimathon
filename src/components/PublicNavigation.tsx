@@ -1,31 +1,34 @@
 import { Link, useLocation } from "react-router-dom";
-import { Button } from "@/components/ui/button";
-import { Home, ScanLine, Trophy } from "lucide-react";
 
 export const PublicNavigation = () => {
   const location = useLocation();
-  const isActive = (path: string) => location.pathname === path;
+
+  const links = [
+    { to: "/", label: "Home" },
+    { to: "/submit", label: "Submit" },
+    { to: "/scoreboard", label: "Scoreboard" },
+  ];
 
   return (
-    <nav className="flex gap-2 mb-8 flex-wrap">
-      <Link to="/">
-        <Button variant={isActive("/") ? "default" : "outline"} size="sm">
-          <Home className="w-4 h-4 mr-2" />
-          Home
-        </Button>
+    <nav className="flex items-center gap-6 mb-8">
+      <Link to="/" className="font-bold text-xl tracking-tight text-foreground">
+        Estimathon
       </Link>
-      <Link to="/submit">
-        <Button variant={isActive("/submit") ? "default" : "outline"} size="sm">
-          <ScanLine className="w-4 h-4 mr-2" />
-          Submit
-        </Button>
-      </Link>
-      <Link to="/scoreboard">
-        <Button variant={isActive("/scoreboard") ? "default" : "outline"} size="sm">
-          <Trophy className="w-4 h-4 mr-2" />
-          Scoreboard
-        </Button>
-      </Link>
+      <div className="flex gap-4">
+        {links.map((link) => (
+          <Link
+            key={link.to}
+            to={link.to}
+            className={`text-sm font-semibold uppercase tracking-wide transition-colors ${
+              location.pathname === link.to
+                ? "text-primary"
+                : "text-muted-foreground hover:text-foreground"
+            }`}
+          >
+            {link.label}
+          </Link>
+        ))}
+      </div>
     </nav>
   );
 };

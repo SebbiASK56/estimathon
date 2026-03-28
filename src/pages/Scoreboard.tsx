@@ -37,7 +37,7 @@ const Scoreboard = () => {
   const [problems, setProblems] = useState<Problem[]>([]);
   const [submissions, setSubmissions] = useState<Submission[]>([]);
   const [loading, setLoading] = useState(true);
-  const [timeLeft, setTimeLeft] = useState(30 * 60); // 30 minutes in seconds
+  const [timeLeft, setTimeLeft] = useState(30 * 60);
   const [isRunning, setIsRunning] = useState(false);
 
   const rainbowColors = [
@@ -63,70 +63,52 @@ const Scoreboard = () => {
     setLoading(false);
   };
 
-  const getIncorrectCount = (teamId: string, problemId: string) => {
-    const problem = problems.find(p => p.id === problemId);
-    if (!problem) return 0;
-    
-    const teamSubmissions = submissions.filter(
-      s => s.team_id === teamId && s.problem_id === problemId
-    );
-    
-    return teamSubmissions.filter(
-      s => s.lower_bound > problem.correct_answer || s.upper_bound < problem.correct_answer
-    ).length;
-  };
-
   const getProblemScore = (teamId: string, problemId: string) => {
     const problem = problems.find(p => p.id === problemId);
     if (!problem) return null;
-    
+
     const teamSubmissions = submissions.filter(
       s => s.team_id === teamId && s.problem_id === problemId
     );
-    
+
     if (teamSubmissions.length === 0) return null;
-    
-    // Sort by submitted_at and get the most recent submission
+
     const sortedSubmissions = [...teamSubmissions].sort(
       (a, b) => new Date(b.submitted_at).getTime() - new Date(a.submitted_at).getTime()
     );
     const lastSubmission = sortedSubmissions[0];
-    
-    // Ensure bounds are numbers
+
     const lowerBound = Number(lastSubmission.lower_bound);
     const upperBound = Number(lastSubmission.upper_bound);
     const correctAnswer = Number(problem.correct_answer);
-    
-    // Check if the last submission is correct
+
     const isCorrect = lowerBound <= correctAnswer && upperBound >= correctAnswer;
-    
+
     if (isCorrect) {
       return Math.floor(upperBound / lowerBound);
     }
-    
-    // If incorrect, count all incorrect submissions (for display purposes)
+
     const incorrectCount = teamSubmissions.filter(
       s => Number(s.lower_bound) > correctAnswer || Number(s.upper_bound) < correctAnswer
     ).length;
-    
+
     return { incorrect: incorrectCount };
   };
 
   const getTotalScore = (teamId: string) => {
     let sumOfScores = 0;
     let unsolvedCount = 0;
-    
+
     problems.forEach(problem => {
       const result = getProblemScore(teamId, problem.id);
-      
+
       if (typeof result === 'number') {
         sumOfScores += result;
       } else {
-        // Problem is unsolved (either no submission or only incorrect submissions)
         unsolvedCount++;
       }
     });
-    
+
     return (sumOfScores + 10) * Math.pow(2, unsolvedCount);
   };
 
@@ -134,10 +116,9 @@ const Scoreboard = () => {
     const teamScores = teams.map(team => ({
       id: team.id,
       score: getTotalScore(team.id)
-    })).sort((a, b) => a.score - b.score); // Lower is better
-    
-    const rank = teamScores.findIndex(t => t.id === teamId) + 1;
-    return rank;
+    })).sort((a, b) => a.score - b.score);
+
+    return teamScores.findIndex(t => t.id === teamId) + 1;
   };
 
   useEffect(() => {
@@ -147,47 +128,28 @@ const Scoreboard = () => {
       .channel("scoreboard-changes")
       .on(
         "postgres_changes",
-        {
-          event: "*",
-          schema: "public",
-          table: "submissions",
-        },
-        () => {
-          fetchData();
-        }
+        { event: "*", schema: "public", table: "submissions" },
+        () => fetchData()
       )
       .subscribe();
 
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, []);
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
-    
     if (isRunning && timeLeft > 0) {
       interval = setInterval(() => {
         setTimeLeft((prev) => Math.max(0, prev - 1));
       }, 1000);
     }
-
-    return () => {
-      if (interval) clearInterval(interval);
-    };
+    return () => { if (interval) clearInterval(interval); };
   }, [isRunning, timeLeft]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);
     const secs = seconds % 60;
     return `${mins.toString().padStart(2, "0")}:${secs.toString().padStart(2, "0")}`;
-  };
-
-  const handleStart = () => setIsRunning(true);
-  const handlePause = () => setIsRunning(false);
-  const handleReset = () => {
-    setIsRunning(false);
-    setTimeLeft(30 * 60);
   };
 
   if (loading) {
@@ -202,44 +164,42 @@ const Scoreboard = () => {
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
         <PublicNavigation />
-        
-        <div className="text-center space-y-4">
-          <h1 className="text-5xl md:text-7xl font-bold tracking-tight">
+
+        <div className="text-center space-y-6">
+          <h1 className="text-6xl md:text-8xl font-bold tracking-tight text-foreground">
             Estimathon
           </h1>
-          
-          <div className="flex items-center justify-center gap-4">
-            <div className="text-6xl font-mono font-bold">
-              {formatTime(timeLeft)}
-            </div>
+
+          <div className="text-7xl font-mono font-bold text-foreground">
+            {formatTime(timeLeft)}
           </div>
 
-          <div className="flex items-center justify-center gap-2">
+          <div className="flex items-center justify-center gap-3">
             {!isRunning ? (
-              <Button onClick={handleStart} size="lg">
+              <Button onClick={() => setIsRunning(true)} size="lg" className="rounded-full px-8">
                 <Play className="w-5 h-5 mr-2" />
                 Start
               </Button>
             ) : (
-              <Button onClick={handlePause} size="lg" variant="secondary">
+              <Button onClick={() => setIsRunning(false)} size="lg" variant="secondary" className="rounded-full px-8">
                 <Pause className="w-5 h-5 mr-2" />
                 Pause
               </Button>
             )}
-            <Button onClick={handleReset} size="lg" variant="outline">
+            <Button onClick={() => { setIsRunning(false); setTimeLeft(30 * 60); }} size="lg" variant="outline" className="rounded-full px-8">
               <RotateCcw className="w-5 h-5 mr-2" />
               Reset
             </Button>
           </div>
         </div>
 
-        <div className="border rounded-lg overflow-auto">
+        <div className="rounded-2xl overflow-auto border shadow-sm">
           <Table>
             <TableHeader>
-              <TableRow>
-                <TableHead className="font-bold border-r border-black w-40">Team Name</TableHead>
+              <TableRow className="bg-muted">
+                <TableHead className="font-bold border-r w-40">Team Name</TableHead>
                 {problems.map((problem) => (
-                  <TableHead key={problem.id} className="text-center font-bold border-r border-black w-20">
+                  <TableHead key={problem.id} className="text-center font-bold border-r w-20">
                     {problem.problem_number}
                   </TableHead>
                 ))}
@@ -249,19 +209,21 @@ const Scoreboard = () => {
             <TableBody>
               {teams.map((team, index) => (
                 <TableRow key={team.id} className={rainbowColors[index % 7]}>
-                  <TableCell className="font-medium text-black border-r border-black h-10 py-2">{team.team_number}. {team.team_name}</TableCell>
+                  <TableCell className="font-semibold text-foreground border-r h-10 py-2">
+                    {team.team_number}. {team.team_name}
+                  </TableCell>
                   {problems.map((problem) => {
                     const result = getProblemScore(team.id, problem.id);
                     return (
-                      <TableCell key={problem.id} className="text-center border-r border-black h-10 py-2">
+                      <TableCell key={problem.id} className="text-center border-r h-10 py-2">
                         <div className="flex items-center justify-center h-full">
                           {result !== null && (
                             typeof result === 'number' ? (
-                              <span className="text-black font-bold text-base">{result}</span>
+                              <span className="text-foreground font-bold text-base">{result}</span>
                             ) : (
-                              <div className="bg-red-600 inline-flex items-center justify-center px-1.5 py-0.5 rounded">
+                              <div className="bg-destructive/80 inline-flex items-center justify-center px-1.5 py-0.5 rounded">
                                 {Array.from({ length: result.incorrect }).map((_, i) => (
-                                  <span key={i} className="text-black font-bold text-base mx-0.5">✕</span>
+                                  <span key={i} className="text-destructive-foreground font-bold text-base mx-0.5">✕</span>
                                 ))}
                               </div>
                             )
@@ -270,17 +232,17 @@ const Scoreboard = () => {
                       </TableCell>
                     );
                   })}
-                  <TableCell className="text-center font-bold text-black h-10 py-2">
+                  <TableCell className="text-center font-bold text-foreground h-10 py-2">
                     {(() => {
                       const score = getTotalScore(team.id);
                       const rank = getTeamRanking(team.id);
-                      const rankColors = {
-                        1: "bg-yellow-400 text-black px-3 py-1 rounded-md font-extrabold text-lg shadow-md",
-                        2: "bg-gray-300 text-black px-3 py-1 rounded-md font-extrabold text-lg shadow-md",
-                        3: "bg-amber-600 text-white px-3 py-1 rounded-md font-extrabold text-lg shadow-md"
+                      const rankClasses: Record<number, string> = {
+                        1: "bg-gold text-foreground px-3 py-1 rounded-full font-extrabold text-lg shadow-sm",
+                        2: "bg-silver text-foreground px-3 py-1 rounded-full font-extrabold text-lg shadow-sm",
+                        3: "bg-bronze text-primary-foreground px-3 py-1 rounded-full font-extrabold text-lg shadow-sm",
                       };
                       return (
-                        <span className={rank <= 3 ? rankColors[rank as 1 | 2 | 3] : ""}>
+                        <span className={rankClasses[rank] || ""}>
                           {score}
                         </span>
                       );

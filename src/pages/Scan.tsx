@@ -10,7 +10,7 @@ import { PublicNavigation } from "@/components/PublicNavigation";
 
 const Scan = () => {
   const { toast } = useToast();
-  const [teamNumber, setTeamNumber] = useState("");
+  const [passphrase, setPassphrase] = useState("");
   const [problemNumber, setProblemNumber] = useState("");
   const [lowerBound, setLowerBound] = useState("");
   const [upperBound, setUpperBound] = useState("");
@@ -22,7 +22,7 @@ const Scan = () => {
   };
 
   const submitAnswer = async () => {
-    if (!teamNumber || !problemNumber || !lowerBound || !upperBound) {
+    if (!passphrase || !problemNumber || !lowerBound || !upperBound) {
       toast({ title: "Please fill all fields", variant: "destructive" });
       return;
     }
@@ -30,31 +30,37 @@ const Scan = () => {
     setProcessing(true);
 
     try {
-      const { data: teams } = await supabase
+      const { data: team } = await supabase
         .from("teams")
         .select("id")
-        .eq("team_number", parseInt(teamNumber))
+        .eq("passphrase" as any, passphrase.trim())
         .single();
 
-      const { data: problems } = await supabase
+      const { data: problem } = await supabase
         .from("problems")
         .select("id, correct_answer")
         .eq("problem_number", parseInt(problemNumber))
         .single();
 
-      if (!teams || !problems) {
-        toast({ title: "Invalid team or problem number", variant: "destructive" });
+      if (!team) {
+        toast({ title: "Invalid passphrase", variant: "destructive" });
+        setProcessing(false);
+        return;
+      }
+
+      if (!problem) {
+        toast({ title: "Invalid problem number", variant: "destructive" });
         setProcessing(false);
         return;
       }
 
       const lower = parseFloat(lowerBound);
       const upper = parseFloat(upperBound);
-      const score = calculateScore(lower, upper, problems.correct_answer);
+      const score = calculateScore(lower, upper, problem.correct_answer);
 
       const { error } = await supabase.from("submissions").insert({
-        team_id: teams.id,
-        problem_id: problems.id,
+        team_id: team.id,
+        problem_id: problem.id,
         lower_bound: lower,
         upper_bound: upper,
         score,
@@ -68,7 +74,6 @@ const Scan = () => {
         duration: 3000,
       });
 
-      setTeamNumber("");
       setProblemNumber("");
       setLowerBound("");
       setUpperBound("");
@@ -93,13 +98,13 @@ const Scan = () => {
         <Card className="p-6 space-y-6 shadow-md border">
           <div className="space-y-5">
             <div>
-              <Label htmlFor="team-number" className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Team Number</Label>
+              <Label htmlFor="passphrase" className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Team Passphrase</Label>
               <Input
-                id="team-number"
-                type="number"
-                value={teamNumber}
-                onChange={(e) => setTeamNumber(e.target.value)}
-                placeholder="e.g., 1"
+                id="passphrase"
+                type="text"
+                value={passphrase}
+                onChange={(e) => setPassphrase(e.target.value)}
+                placeholder="Enter your team's passphrase"
                 className="mt-1"
               />
             </div>

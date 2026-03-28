@@ -72,16 +72,7 @@ const Setup = () => {
     }
   };
 
-  const adjustProblemsCount = (count: number) => {
-    const newCount = Math.max(0, Math.min(100, count));
-    const current = problems.length;
-    
-    if (newCount > current) {
-      setProblems([...problems, ...Array(newCount - current).fill(null).map(() => ({ id: "", question: "", answer: "" }))]);
-    } else {
-      setProblems(problems.slice(0, newCount));
-    }
-  };
+
 
   const updateTeamName = (index: number, name: string) => {
     const updated = [...teams];

@@ -14,9 +14,6 @@ const Index = () => {
           <h1 className="text-7xl md:text-8xl font-bold tracking-tight text-foreground">
             Estimathon
           </h1>
-          <p className="text-lg text-muted-foreground max-w-md mx-auto">
-            A Jane Street–style estimation competition with real-time scoring
-          </p>
         </div>
 
         <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">

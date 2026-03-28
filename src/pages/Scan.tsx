@@ -30,10 +30,10 @@ const Scan = () => {
     setProcessing(true);
 
     try {
-      const { data: team } = await supabase
+      const { data: team } = await (supabase
         .from("teams")
-        .select("id")
-        .eq("passphrase" as any, passphrase.trim())
+        .select("id") as any)
+        .eq("passphrase", passphrase.trim())
         .single();
 
       const { data: problem } = await supabase

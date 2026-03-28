@@ -12,27 +12,17 @@ const Index = () => {
             Estimathon
           </h1>
           <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
-            Jane Street style estimation competitions with real-time scoring and paper slip scanning
+            Jane Street style estimation competitions with real-time scoring
           </p>
         </div>
 
-        <div className="grid md:grid-cols-3 gap-6 pt-8">
-          <Link to="/setup" className="block">
-            <Button variant="secondary" className="w-full h-auto flex flex-col gap-3 p-6 hover:scale-105 transition-transform">
-              <Trophy className="w-8 h-8" />
-              <div>
-                <div className="font-bold text-lg">Setup</div>
-                <div className="text-sm text-muted-foreground">Manage teams & problems</div>
-              </div>
-            </Button>
-          </Link>
-
-          <Link to="/scan" className="block">
+        <div className="grid md:grid-cols-2 gap-6 pt-8 max-w-2xl mx-auto">
+          <Link to="/submit" className="block">
             <Button variant="secondary" className="w-full h-auto flex flex-col gap-3 p-6 hover:scale-105 transition-transform">
               <Smartphone className="w-8 h-8" />
               <div>
-                <div className="font-bold text-lg">Scan</div>
-                <div className="text-sm text-muted-foreground">Submit paper slips</div>
+                <div className="font-bold text-lg">Submit</div>
+                <div className="text-sm text-muted-foreground">Submit your answers</div>
               </div>
             </Button>
           </Link>

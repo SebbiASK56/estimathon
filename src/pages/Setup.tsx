@@ -12,6 +12,7 @@ import { AdminNavigation } from "@/components/AdminNavigation";
 interface TeamData {
   id: string;
   name: string;
+  passphrase: string;
 }
 
 interface ProblemData {
@@ -42,7 +43,7 @@ const Setup = () => {
       ]);
 
       if (teamsRes.data) {
-        setTeams(teamsRes.data.map(t => ({ id: t.id, name: t.team_name })));
+        setTeams(teamsRes.data.map(t => ({ id: t.id, name: t.team_name, passphrase: (t as any).passphrase || "" })));
       }
       
       // Always show 13 problems, pre-filling with saved data
@@ -66,7 +67,7 @@ const Setup = () => {
     const current = teams.length;
     
     if (newCount > current) {
-      setTeams([...teams, ...Array(newCount - current).fill(null).map(() => ({ id: "", name: "" }))]);
+      setTeams([...teams, ...Array(newCount - current).fill(null).map(() => ({ id: "", name: "", passphrase: "" }))]);
     } else {
       setTeams(teams.slice(0, newCount));
     }
@@ -77,6 +78,12 @@ const Setup = () => {
   const updateTeamName = (index: number, name: string) => {
     const updated = [...teams];
     updated[index].name = name;
+    setTeams(updated);
+  };
+
+  const updateTeamPassphrase = (index: number, passphrase: string) => {
+    const updated = [...teams];
+    updated[index].passphrase = passphrase;
     setTeams(updated);
   };
 
@@ -91,6 +98,10 @@ const Setup = () => {
       toast({ title: "Please fill all team names", variant: "destructive" });
       return;
     }
+    if (teams.some(t => !t.passphrase.trim())) {
+      toast({ title: "Please fill all team passphrases", variant: "destructive" });
+      return;
+    }
 
     setSubmitting(true);
     try {
@@ -100,6 +111,7 @@ const Setup = () => {
       const teamRecords = teams.map((team, index) => ({
         team_number: index + 1,
         team_name: team.name.trim(),
+        passphrase: team.passphrase.trim(),
       }));
 
       const { error } = await supabase.from("teams").insert(teamRecords);
@@ -200,13 +212,22 @@ const Setup = () => {
                 {teams.length > 0 && (
                   <div className="space-y-3 max-h-96 overflow-y-auto">
                     {teams.map((team, index) => (
-                      <div key={index} className="flex items-center">
-                        <Input
-                          value={team.name}
-                          onChange={(e) => updateTeamName(index, e.target.value)}
-                          placeholder="Team name"
-                          className="w-full"
-                        />
+                      <div key={index} className="space-y-1">
+                        <span className="text-xs font-semibold text-muted-foreground">Team {index + 1}</span>
+                        <div className="flex items-center gap-2">
+                          <Input
+                            value={team.name}
+                            onChange={(e) => updateTeamName(index, e.target.value)}
+                            placeholder="Team name"
+                            className="flex-1"
+                          />
+                          <Input
+                            value={team.passphrase}
+                            onChange={(e) => updateTeamPassphrase(index, e.target.value)}
+                            placeholder="Passphrase"
+                            className="flex-1"
+                          />
+                        </div>
                       </div>
                     ))}
                   </div>

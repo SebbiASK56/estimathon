@@ -87,18 +87,21 @@ export type Database = {
         Row: {
           created_at: string | null
           id: string
+          passphrase: string
           team_name: string
           team_number: number
         }
         Insert: {
           created_at?: string | null
           id?: string
+          passphrase?: string
           team_name: string
           team_number: number
         }
         Update: {
           created_at?: string | null
           id?: string
+          passphrase?: string
           team_name?: string
           team_number?: number
         }

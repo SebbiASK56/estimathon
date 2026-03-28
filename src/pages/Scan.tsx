@@ -23,6 +23,7 @@ const Scan = () => {
 
   const MIN_BOUND = 1e-15;
   const MAX_BOUND = 1e15;
+  const MAX_SUBMISSIONS = 18;
 
   const submitAnswer = async () => {
     if (!passphrase || !problemNumber || !lowerBound || !upperBound) {
@@ -52,17 +53,36 @@ const Scan = () => {
         .eq("passphrase", passphrase.trim())
         .single();
 
-      const { data: problem } = await supabase
-        .from("problems")
-        .select("id, correct_answer")
-        .eq("problem_number", parseInt(problemNumber))
-        .single();
-
       if (!team) {
         toast({ title: "Invalid passphrase", variant: "destructive" });
         setProcessing(false);
         return;
       }
+
+      // Check submission count
+      const { count } = await supabase
+        .from("submissions")
+        .select("*", { count: "exact", head: true })
+        .eq("team_id", team.id);
+
+      const usedSubmissions = count ?? 0;
+
+      if (usedSubmissions >= MAX_SUBMISSIONS) {
+        toast({
+          title: "No submissions remaining",
+          description: `Your team has used all ${MAX_SUBMISSIONS} submissions.`,
+          variant: "destructive",
+          duration: 5000,
+        });
+        setProcessing(false);
+        return;
+      }
+
+      const { data: problem } = await supabase
+        .from("problems")
+        .select("id, correct_answer")
+        .eq("problem_number", parseInt(problemNumber))
+        .single();
 
       if (!problem) {
         toast({ title: "Invalid problem number", variant: "destructive" });
@@ -70,8 +90,6 @@ const Scan = () => {
         return;
       }
 
-      const lower = parseFloat(lowerBound);
-      const upper = parseFloat(upperBound);
       const score = calculateScore(lower, upper, problem.correct_answer);
 
       const { error } = await supabase.from("submissions").insert({
@@ -84,10 +102,12 @@ const Scan = () => {
 
       if (error) throw error;
 
+      const remaining = MAX_SUBMISSIONS - usedSubmissions - 1;
+
       toast({
         title: "Submission recorded!",
-        description: score === 0 ? "Incorrect" : `Score: ${Math.floor(score)}`,
-        duration: 3000,
+        description: `${score === 0 ? "Incorrect" : `Score: ${Math.floor(score)}`} — ${remaining} submission${remaining === 1 ? "" : "s"} remaining`,
+        duration: 5000,
       });
 
       setProblemNumber("");

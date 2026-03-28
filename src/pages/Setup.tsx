@@ -27,6 +27,8 @@ const Setup = () => {
   const [submitting, setSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
 
+  const NUM_PROBLEMS = 13;
+
   useEffect(() => {
     loadData();
   }, []);
@@ -42,13 +44,16 @@ const Setup = () => {
       if (teamsRes.data) {
         setTeams(teamsRes.data.map(t => ({ id: t.id, name: t.team_name })));
       }
-      if (problemsRes.data) {
-        setProblems(problemsRes.data.map(p => ({ 
-          id: p.id, 
-          question: p.question, 
-          answer: p.correct_answer.toString() 
-        })));
-      }
+      
+      // Always show 13 problems, pre-filling with saved data
+      const savedProblems = problemsRes.data || [];
+      const allProblems = Array.from({ length: NUM_PROBLEMS }, (_, i) => {
+        const saved = savedProblems.find(p => p.problem_number === i + 1);
+        return saved 
+          ? { id: saved.id, question: saved.question, answer: saved.correct_answer.toString() }
+          : { id: "", question: "", answer: "" };
+      });
+      setProblems(allProblems);
     } catch (error: any) {
       toast({ title: "Error loading data", description: error.message, variant: "destructive" });
     } finally {
@@ -234,17 +239,6 @@ const Setup = () => {
               </div>
 
               <div className="space-y-4">
-                <div>
-                  <Label htmlFor="num-problems">Number of Problems</Label>
-                  <Input
-                    id="num-problems"
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={problems.length}
-                    onChange={(e) => adjustProblemsCount(parseInt(e.target.value) || 0)}
-                  />
-                </div>
 
                 {problems.length > 0 && (
                   <div className="space-y-4 max-h-96 overflow-y-auto">

@@ -112,18 +112,21 @@ export type Database = {
           id: string
           is_running: boolean
           last_updated_at: string
+          submissions_open: boolean
           time_left: number
         }
         Insert: {
           id?: string
           is_running?: boolean
           last_updated_at?: string
+          submissions_open?: boolean
           time_left?: number
         }
         Update: {
           id?: string
           is_running?: boolean
           last_updated_at?: string
+          submissions_open?: boolean
           time_left?: number
         }
         Relationships: []

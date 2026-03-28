@@ -1,7 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { Button } from "@/components/ui/button";
-import { Play, Pause, RotateCcw } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -39,6 +37,7 @@ const Scoreboard = () => {
   const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState(30 * 60);
   const [isRunning, setIsRunning] = useState(false);
+  const lastUpdatedRef = useRef<string | null>(null);
 
   const rainbowColors = [
     "bg-rainbow-red",
@@ -61,6 +60,34 @@ const Scoreboard = () => {
     if (problemsRes.data) setProblems(problemsRes.data);
     if (submissionsRes.data) setSubmissions(submissionsRes.data);
     setLoading(false);
+  };
+
+  const fetchTimerState = async () => {
+    const { data } = await supabase
+      .from("timer_state")
+      .select("*")
+      .limit(1)
+      .single();
+
+    if (data) {
+      applyTimerState(data);
+    }
+  };
+
+  const applyTimerState = (data: any) => {
+    const wasRunning = data.is_running;
+    const savedTimeLeft = data.time_left;
+    const lastUpdated = new Date(data.last_updated_at).getTime();
+
+    if (wasRunning) {
+      const elapsed = Math.floor((Date.now() - lastUpdated) / 1000);
+      setTimeLeft(Math.max(0, savedTimeLeft - elapsed));
+      setIsRunning(true);
+    } else {
+      setTimeLeft(savedTimeLeft);
+      setIsRunning(false);
+    }
+    lastUpdatedRef.current = data.last_updated_at;
   };
 
   const getProblemScore = (teamId: string, problemId: string) => {
@@ -123,8 +150,9 @@ const Scoreboard = () => {
 
   useEffect(() => {
     fetchData();
+    fetchTimerState();
 
-    const channel = supabase
+    const submissionsChannel = supabase
       .channel("scoreboard-changes")
       .on(
         "postgres_changes",
@@ -133,7 +161,21 @@ const Scoreboard = () => {
       )
       .subscribe();
 
-    return () => { supabase.removeChannel(channel); };
+    const timerChannel = supabase
+      .channel("timer-changes")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "timer_state" },
+        (payload: any) => {
+          if (payload.new) applyTimerState(payload.new);
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(submissionsChannel);
+      supabase.removeChannel(timerChannel);
+    };
   }, []);
 
   useEffect(() => {
@@ -172,24 +214,6 @@ const Scoreboard = () => {
 
           <div className="text-7xl font-mono font-bold text-foreground">
             {formatTime(timeLeft)}
-          </div>
-
-          <div className="flex items-center justify-center gap-3">
-            {!isRunning ? (
-              <Button onClick={() => setIsRunning(true)} size="lg" className="rounded-full px-8">
-                <Play className="w-5 h-5 mr-2" />
-                Start
-              </Button>
-            ) : (
-              <Button onClick={() => setIsRunning(false)} size="lg" variant="secondary" className="rounded-full px-8">
-                <Pause className="w-5 h-5 mr-2" />
-                Pause
-              </Button>
-            )}
-            <Button onClick={() => { setIsRunning(false); setTimeLeft(30 * 60); }} size="lg" variant="outline" className="rounded-full px-8">
-              <RotateCcw className="w-5 h-5 mr-2" />
-              Reset
-            </Button>
           </div>
         </div>
 

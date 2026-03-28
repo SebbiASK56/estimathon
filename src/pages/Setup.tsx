@@ -238,7 +238,15 @@ const Setup = () => {
                         }
                         return { id: "", name: cols[0] || "", passphrase: cols[1] || "" };
                       });
-                      if (parsed.length > 0) setTeams(parsed);
+                      // Dedup by team name, keeping first occurrence
+                      const seen = new Set<string>();
+                      const deduped = parsed.filter(t => {
+                        const key = t.name.toLowerCase();
+                        if (seen.has(key)) return false;
+                        seen.add(key);
+                        return true;
+                      });
+                      if (deduped.length > 0) setTeams(deduped);
                     }}
                   >
                     Import CSV

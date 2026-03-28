@@ -207,6 +207,20 @@ const Setup = () => {
                     value={teams.length}
                     onChange={(e) => adjustTeamsCount(parseInt(e.target.value) || 0)}
                   />
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      const count = teams.length || 6;
+                      setTeams(Array.from({ length: count }, (_, i) => ({
+                        id: "",
+                        name: `Team ${i + 1}`,
+                        passphrase: `${i + 1}`,
+                      })));
+                    }}
+                  >
+                    Populate Defaults
+                  </Button>
                 </div>
 
                 {teams.length > 0 && (

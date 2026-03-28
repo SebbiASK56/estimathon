@@ -173,7 +173,7 @@ const Setup = () => {
   return (
     <div className="min-h-screen bg-background p-8">
       <div className="max-w-6xl mx-auto space-y-8">
-        <Navigation />
+        <AdminNavigation />
         
         <h1 className="text-4xl font-bold">Competition Setup</h1>
 

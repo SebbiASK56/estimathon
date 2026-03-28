@@ -7,7 +7,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Save } from "lucide-react";
-import { Navigation } from "@/components/Navigation";
+import { AdminNavigation } from "@/components/AdminNavigation";
 
 interface TeamData {
   id: string;

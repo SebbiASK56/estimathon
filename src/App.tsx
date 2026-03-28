@@ -10,7 +10,7 @@ import Setup from "./pages/Setup";
 import Scan from "./pages/Scan";
 import Scoreboard from "./pages/Scoreboard";
 import Submissions from "./pages/Submissions";
-import PasswordLogin from "./pages/PasswordLogin";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -21,15 +21,24 @@ const App = () => (
       <Toaster />
       <Sonner />
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/setup" element={<Setup />} />
-          <Route path="/scan" element={<Scan />} />
-          <Route path="/scoreboard" element={<Scoreboard />} />
-          <Route path="/submissions" element={<Submissions />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <PasswordProvider>
+          <Routes>
+            {/* Public routes */}
+            <Route path="/" element={<Index />} />
+            <Route path="/submit" element={<Scan />} />
+            <Route path="/scoreboard" element={<Scoreboard />} />
+            {/* Admin routes */}
+            <Route path="/admin" element={<Admin />} />
+            <Route path="/admin/setup" element={
+              <ProtectedRoute><Setup /></ProtectedRoute>
+            } />
+            <Route path="/admin/submissions" element={
+              <ProtectedRoute><Submissions /></ProtectedRoute>
+            } />
+            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </PasswordProvider>
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

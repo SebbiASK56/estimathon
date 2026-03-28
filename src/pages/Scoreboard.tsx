@@ -10,7 +10,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Navigation } from "@/components/Navigation";
+import { PublicNavigation } from "@/components/PublicNavigation";
 
 interface Team {
   id: string;
@@ -164,7 +164,7 @@ const Scoreboard = () => {
   }, []);
 
   useEffect(() => {
-    let interval: NodeJS.Timeout;
+    let interval: ReturnType<typeof setInterval>;
     
     if (isRunning && timeLeft > 0) {
       interval = setInterval(() => {
@@ -201,7 +201,7 @@ const Scoreboard = () => {
   return (
     <div className="min-h-screen bg-background p-4 md:p-8">
       <div className="max-w-7xl mx-auto space-y-8">
-        <Navigation />
+        <PublicNavigation />
         
         <div className="text-center space-y-4">
           <h1 className="text-5xl md:text-7xl font-bold tracking-tight">

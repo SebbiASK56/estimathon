@@ -228,9 +228,15 @@ const Setup = () => {
                       const input = prompt("Paste CSV (team_name,passphrase per line):");
                       if (!input) return;
                       const lines = input.trim().split("\n").filter(l => l.trim());
-                      const parsed = lines.map(line => {
-                        const [name, passphrase] = line.split(",").map(s => s.trim());
-                        return { id: "", name: name || "", passphrase: passphrase || "" };
+                      // Skip header row if it contains "email" or "team"
+                      const startIdx = lines[0]?.toLowerCase().includes("email") || lines[0]?.toLowerCase().includes("team") ? 1 : 0;
+                      const parsed = lines.slice(startIdx).map(line => {
+                        const cols = line.split(",").map(s => s.trim());
+                        // Support both "team,phrase" and "email,team,phrase" formats
+                        if (cols.length >= 3) {
+                          return { id: "", name: cols[1] || "", passphrase: cols[2] || "" };
+                        }
+                        return { id: "", name: cols[0] || "", passphrase: cols[1] || "" };
                       });
                       if (parsed.length > 0) setTeams(parsed);
                     }}

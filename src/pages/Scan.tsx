@@ -21,9 +21,25 @@ const Scan = () => {
     return Math.floor(upper / lower);
   };
 
+  const MIN_BOUND = 1e-15;
+  const MAX_BOUND = 1e15;
+
   const submitAnswer = async () => {
     if (!passphrase || !problemNumber || !lowerBound || !upperBound) {
       toast({ title: "Please fill all fields", variant: "destructive" });
+      return;
+    }
+
+    const lower = parseFloat(lowerBound);
+    const upper = parseFloat(upperBound);
+
+    if (isNaN(lower) || isNaN(upper)) {
+      toast({ title: "Bounds must be valid numbers", variant: "destructive" });
+      return;
+    }
+
+    if (lower < MIN_BOUND || lower > MAX_BOUND || upper < MIN_BOUND || upper > MAX_BOUND) {
+      toast({ title: `Bounds must be between 1e-15 and 1e15`, variant: "destructive" });
       return;
     }
 

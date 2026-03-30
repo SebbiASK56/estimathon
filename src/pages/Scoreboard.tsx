@@ -234,7 +234,7 @@ const Scoreboard = () => {
             <TableBody>
               {teams.map((team, index) => (
                 <TableRow key={team.id} className={`${rainbowColors[index % 7]} border-b border-foreground/30`}>
-                  <TableCell className="font-semibold text-foreground border-r border-foreground/30 h-10 py-2">
+                  <TableCell className="font-semibold text-foreground border-r-2 border-foreground h-10 py-2">
                     {team.team_number}. {team.team_name}
                   </TableCell>
                   {problems.map((problem) => {

@@ -3,9 +3,52 @@ import { usePassword } from "@/contexts/PasswordContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Lock, Settings, ClipboardList, Play, Pause, RotateCcw, ShieldCheck, ShieldOff } from "lucide-react";
+import { Lock, Settings, ClipboardList, Play, Pause, RotateCcw, ShieldCheck, ShieldOff, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
+
+const SetTimerInput = ({ onSet, disabled }: { onSet: (seconds: number) => void; disabled: boolean }) => {
+  const [mins, setMins] = useState("");
+  const [secs, setSecs] = useState("");
+
+  const handleSet = () => {
+    const totalSeconds = (parseInt(mins) || 0) * 60 + (parseInt(secs) || 0);
+    if (totalSeconds > 0) {
+      onSet(totalSeconds);
+      setMins("");
+      setSecs("");
+    }
+  };
+
+  return (
+    <div className="flex items-center justify-center gap-2 pt-2">
+      <Clock className="w-4 h-4 text-muted-foreground" />
+      <Input
+        type="number"
+        placeholder="MM"
+        value={mins}
+        onChange={(e) => setMins(e.target.value)}
+        className="w-16 text-center"
+        min={0}
+        disabled={disabled}
+      />
+      <span className="text-muted-foreground font-bold">:</span>
+      <Input
+        type="number"
+        placeholder="SS"
+        value={secs}
+        onChange={(e) => setSecs(e.target.value)}
+        className="w-16 text-center"
+        min={0}
+        max={59}
+        disabled={disabled}
+      />
+      <Button onClick={handleSet} size="sm" variant="outline" disabled={disabled || (!mins && !secs)}>
+        Set
+      </Button>
+    </div>
+  );
+};
 
 const Admin = () => {
   const { isAuthenticated, login } = usePassword();
@@ -69,6 +112,11 @@ const Admin = () => {
     setIsRunning(false);
     setTimeLeft(30 * 60);
     await updateTimerState(false, 30 * 60);
+  };
+
+  const handleSetTime = async (seconds: number) => {
+    setTimeLeft(seconds);
+    await updateTimerState(isRunning, seconds);
   };
 
   const toggleSubmissions = async () => {
@@ -172,6 +220,7 @@ const Admin = () => {
                 Reset
               </Button>
             </div>
+            <SetTimerInput onSet={handleSetTime} disabled={isRunning} />
           </Card>
         )}
 

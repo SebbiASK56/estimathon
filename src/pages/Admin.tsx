@@ -3,7 +3,7 @@ import { usePassword } from "@/contexts/PasswordContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
-import { Lock, Settings, ClipboardList, Play, Pause, RotateCcw, ShieldCheck, ShieldOff } from "lucide-react";
+import { Lock, Settings, ClipboardList, Play, Pause, RotateCcw, ShieldCheck, ShieldOff, Clock } from "lucide-react";
 import { Link } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -172,6 +172,7 @@ const Admin = () => {
                 Reset
               </Button>
             </div>
+            <SetTimerInput onSet={handleSetTime} disabled={isRunning} />
           </Card>
         )}
 

@@ -217,13 +217,13 @@ const Scoreboard = () => {
           </div>
         </div>
 
-        <div className="rounded-2xl overflow-auto border shadow-sm">
+        <div className="rounded-2xl overflow-auto border border-foreground/30 shadow-sm">
           <Table>
             <TableHeader>
-              <TableRow className="bg-muted">
-                <TableHead className="font-bold border-r w-40">Team Name</TableHead>
+              <TableRow className="bg-muted border-b border-foreground/30">
+                <TableHead className="font-bold border-r border-foreground/30 w-40">Team Name</TableHead>
                 {problems.map((problem) => (
-                  <TableHead key={problem.id} className="text-center font-bold border-r w-20">
+                  <TableHead key={problem.id} className="text-center font-bold border-r border-foreground/30 w-20">
                     {problem.problem_number}
                   </TableHead>
                 ))}
@@ -232,14 +232,14 @@ const Scoreboard = () => {
             </TableHeader>
             <TableBody>
               {teams.map((team, index) => (
-                <TableRow key={team.id} className={rainbowColors[index % 7]}>
-                  <TableCell className="font-semibold text-foreground border-r h-10 py-2">
+                <TableRow key={team.id} className={`${rainbowColors[index % 7]} border-b border-foreground/30`}>
+                  <TableCell className="font-semibold text-foreground border-r border-foreground/30 h-10 py-2">
                     {team.team_number}. {team.team_name}
                   </TableCell>
                   {problems.map((problem) => {
                     const result = getProblemScore(team.id, problem.id);
                     return (
-                      <TableCell key={problem.id} className="text-center border-r h-10 py-2">
+                      <TableCell key={problem.id} className="text-center border-r border-foreground/30 h-10 py-2">
                         <div className="flex items-center justify-center h-full">
                           {result !== null && (
                             typeof result === 'number' ? (

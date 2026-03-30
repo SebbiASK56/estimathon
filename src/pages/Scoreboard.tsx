@@ -240,7 +240,7 @@ const Scoreboard = () => {
                   {problems.map((problem) => {
                     const result = getProblemScore(team.id, problem.id);
                     return (
-                      <TableCell key={problem.id} className="text-center border-r border-foreground/30 h-10 py-2">
+                      <TableCell key={problem.id} className={`text-center h-10 py-2 ${problems.indexOf(problem) === problems.length - 1 ? 'border-r-2 border-foreground' : 'border-r border-foreground/30'}`}>
                         <div className="flex items-center justify-center h-full">
                           {result !== null && (
                             typeof result === 'number' ? (

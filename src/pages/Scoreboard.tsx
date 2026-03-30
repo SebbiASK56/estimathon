@@ -227,6 +227,7 @@ const Scoreboard = () => {
                     {problem.problem_number}
                   </TableHead>
                 ))}
+                <TableHead className="text-center font-bold border-r border-foreground/30 w-20">Left</TableHead>
                 <TableHead className="text-center font-bold w-20">Score</TableHead>
               </TableRow>
             </TableHeader>

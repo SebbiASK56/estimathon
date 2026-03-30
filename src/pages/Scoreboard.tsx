@@ -227,6 +227,7 @@ const Scoreboard = () => {
                     {problem.problem_number}
                   </TableHead>
                 ))}
+                <TableHead className="text-center font-bold border-r border-foreground/30 w-20">Left</TableHead>
                 <TableHead className="text-center font-bold w-20">Score</TableHead>
               </TableRow>
             </TableHeader>
@@ -256,6 +257,9 @@ const Scoreboard = () => {
                       </TableCell>
                     );
                   })}
+                  <TableCell className="text-center border-r border-foreground/30 font-bold text-foreground h-10 py-2">
+                    {18 - submissions.filter(s => s.team_id === team.id).length}
+                  </TableCell>
                   <TableCell className="text-center font-bold text-foreground h-10 py-2">
                     {(() => {
                       const score = getTotalScore(team.id);

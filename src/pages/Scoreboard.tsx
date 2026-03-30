@@ -221,13 +221,13 @@ const Scoreboard = () => {
           <Table>
             <TableHeader>
               <TableRow className="bg-muted border-b border-foreground/30">
-                <TableHead className="font-bold border-r border-foreground/30 w-40">Team Name</TableHead>
-                {problems.map((problem) => (
-                  <TableHead key={problem.id} className="text-center font-bold border-r border-foreground/30 w-20">
+                <TableHead className="font-bold border-r-2 border-foreground w-40">Team Name</TableHead>
+                {problems.map((problem, idx) => (
+                  <TableHead key={problem.id} className={`text-center font-bold w-20 ${idx === problems.length - 1 ? 'border-r-2 border-foreground' : 'border-r border-foreground/30'}`}>
                     {problem.problem_number}
                   </TableHead>
                 ))}
-                <TableHead className="text-center font-bold border-r border-foreground/30 w-20">Left</TableHead>
+                <TableHead className="text-center font-bold border-r border-foreground/30 w-20 leading-tight text-xs">Answers<br/>Left</TableHead>
                 <TableHead className="text-center font-bold w-20">Score</TableHead>
               </TableRow>
             </TableHeader>

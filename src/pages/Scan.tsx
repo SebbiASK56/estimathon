@@ -52,6 +52,11 @@ const Scan = () => {
       return;
     }
 
+    if (lower > upper) {
+      toast({ title: "Lower bound must be ≤ upper bound", variant: "destructive" });
+      return;
+    }
+
     if (lower < MIN_BOUND || lower > MAX_BOUND || upper < MIN_BOUND || upper > MAX_BOUND) {
       toast({ title: `Bounds must be between 1e-15 and 1e15`, variant: "destructive" });
       return;

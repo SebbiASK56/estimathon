@@ -122,6 +122,7 @@ const Scan = () => {
         duration: 5000,
       });
 
+      setPassphrase("");
       setProblemNumber("");
       setLowerBound("");
       setUpperBound("");

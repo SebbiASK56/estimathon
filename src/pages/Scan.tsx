@@ -127,6 +127,7 @@ const Scan = () => {
       setProblemNumber("");
       setLowerBound("");
       setUpperBound("");
+      setTimeout(() => passphraseRef.current?.focus(), 50);
     } catch (error: any) {
       toast({
         title: "Error submitting answer",

@@ -147,10 +147,11 @@ const Scan = () => {
         <h1 className="text-4xl md:text-5xl font-bold tracking-tight">Submit Answer</h1>
 
         <Card className="p-6 space-y-6 shadow-md border">
-          <div className="space-y-5">
+          <form onSubmit={(e) => { e.preventDefault(); submitAnswer(); }} className="space-y-5">
             <div>
               <Label htmlFor="passphrase" className="text-sm font-semibold uppercase tracking-wide text-muted-foreground">Team Passphrase</Label>
               <Input
+                ref={passphraseRef}
                 id="passphrase"
                 type="text"
                 value={passphrase}
@@ -201,7 +202,7 @@ const Scan = () => {
             </div>
 
             <Button
-              onClick={submitAnswer}
+              type="submit"
               className="w-full"
               size="lg"
               disabled={processing}
@@ -215,7 +216,7 @@ const Scan = () => {
                 </>
               )}
             </Button>
-          </div>
+          </form>
         </Card>
       </div>
     </div>

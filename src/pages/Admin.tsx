@@ -59,7 +59,7 @@ const Admin = () => {
   const [isRunning, setIsRunning] = useState(false);
   const [timerLoaded, setTimerLoaded] = useState(false);
   const [submissionsOpen, setSubmissionsOpen] = useState(true);
-  const lastUpdatedRef = useRef<string | null>(null);
+  const timerSnapshotRef = useRef<{ timeLeft: number; lastUpdatedAt: number; isRunning: boolean } | null>(null);
 
   const fetchTimerState = async () => {
     const { data } = await supabase
@@ -73,15 +73,15 @@ const Admin = () => {
       const savedTimeLeft = data.time_left;
       const lastUpdated = new Date(data.last_updated_at).getTime();
 
+      timerSnapshotRef.current = { timeLeft: savedTimeLeft, lastUpdatedAt: lastUpdated, isRunning: wasRunning };
+      setIsRunning(wasRunning);
+
       if (wasRunning) {
         const elapsed = Math.floor((Date.now() - lastUpdated) / 1000);
         setTimeLeft(Math.max(0, savedTimeLeft - elapsed));
-        setIsRunning(true);
       } else {
         setTimeLeft(savedTimeLeft);
-        setIsRunning(false);
       }
-      lastUpdatedRef.current = data.id;
       setSubmissionsOpen(data.submissions_open ?? true);
       setTimerLoaded(true);
     }
@@ -99,22 +99,27 @@ const Admin = () => {
   };
 
   const handleStart = async () => {
+    const now = Date.now();
+    timerSnapshotRef.current = { timeLeft, lastUpdatedAt: now, isRunning: true };
     setIsRunning(true);
     await updateTimerState(true, timeLeft);
   };
 
   const handlePause = async () => {
+    timerSnapshotRef.current = { timeLeft, lastUpdatedAt: Date.now(), isRunning: false };
     setIsRunning(false);
     await updateTimerState(false, timeLeft);
   };
 
   const handleReset = async () => {
+    timerSnapshotRef.current = { timeLeft: 30 * 60, lastUpdatedAt: Date.now(), isRunning: false };
     setIsRunning(false);
     setTimeLeft(30 * 60);
     await updateTimerState(false, 30 * 60);
   };
 
   const handleSetTime = async (seconds: number) => {
+    timerSnapshotRef.current = { timeLeft: seconds, lastUpdatedAt: Date.now(), isRunning };
     setTimeLeft(seconds);
     await updateTimerState(isRunning, seconds);
   };
@@ -134,13 +139,16 @@ const Admin = () => {
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
-    if (isRunning && timeLeft > 0) {
+    if (isRunning && timerSnapshotRef.current) {
       interval = setInterval(() => {
-        setTimeLeft((prev) => Math.max(0, prev - 1));
-      }, 1000);
+        const snap = timerSnapshotRef.current;
+        if (!snap) return;
+        const elapsed = Math.floor((Date.now() - snap.lastUpdatedAt) / 1000);
+        setTimeLeft(Math.max(0, snap.timeLeft - elapsed));
+      }, 250);
     }
     return () => { if (interval) clearInterval(interval); };
-  }, [isRunning, timeLeft]);
+  }, [isRunning]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);

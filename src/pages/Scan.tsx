@@ -11,6 +11,7 @@ import { PublicNavigation } from "@/components/PublicNavigation";
 const Scan = () => {
   const { toast } = useToast();
   const [passphrase, setPassphrase] = useState("");
+  const passphraseRef = useRef<HTMLInputElement>(null);
   const [problemNumber, setProblemNumber] = useState("");
   const [lowerBound, setLowerBound] = useState("");
   const [upperBound, setUpperBound] = useState("");

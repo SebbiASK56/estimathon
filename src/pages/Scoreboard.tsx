@@ -37,7 +37,7 @@ const Scoreboard = () => {
   const [loading, setLoading] = useState(true);
   const [timeLeft, setTimeLeft] = useState(30 * 60);
   const [isRunning, setIsRunning] = useState(false);
-  const lastUpdatedRef = useRef<string | null>(null);
+  const timerSnapshotRef = useRef<{ timeLeft: number; lastUpdatedAt: number; isRunning: boolean } | null>(null);
 
   const rainbowColors = [
     "bg-rainbow-red",
@@ -79,15 +79,15 @@ const Scoreboard = () => {
     const savedTimeLeft = data.time_left;
     const lastUpdated = new Date(data.last_updated_at).getTime();
 
+    timerSnapshotRef.current = { timeLeft: savedTimeLeft, lastUpdatedAt: lastUpdated, isRunning: wasRunning };
+    setIsRunning(wasRunning);
+
     if (wasRunning) {
       const elapsed = Math.floor((Date.now() - lastUpdated) / 1000);
       setTimeLeft(Math.max(0, savedTimeLeft - elapsed));
-      setIsRunning(true);
     } else {
       setTimeLeft(savedTimeLeft);
-      setIsRunning(false);
     }
-    lastUpdatedRef.current = data.last_updated_at;
   };
 
   const getProblemScore = (teamId: string, problemId: string) => {
@@ -180,13 +180,16 @@ const Scoreboard = () => {
 
   useEffect(() => {
     let interval: ReturnType<typeof setInterval>;
-    if (isRunning && timeLeft > 0) {
+    if (isRunning && timerSnapshotRef.current) {
       interval = setInterval(() => {
-        setTimeLeft((prev) => Math.max(0, prev - 1));
-      }, 1000);
+        const snap = timerSnapshotRef.current;
+        if (!snap) return;
+        const elapsed = Math.floor((Date.now() - snap.lastUpdatedAt) / 1000);
+        setTimeLeft(Math.max(0, snap.timeLeft - elapsed));
+      }, 250);
     }
     return () => { if (interval) clearInterval(interval); };
-  }, [isRunning, timeLeft]);
+  }, [isRunning]);
 
   const formatTime = (seconds: number) => {
     const mins = Math.floor(seconds / 60);

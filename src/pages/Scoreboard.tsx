@@ -250,9 +250,7 @@ const Scoreboard = () => {
                               <span className="text-foreground font-bold text-base">{result}</span>
                             ) : (
                               <div className="bg-destructive/80 inline-flex items-center justify-center px-1.5 py-0.5 rounded">
-                                {Array.from({ length: result.incorrect }).map((_, i) => (
-                                  <span key={i} className="text-destructive-foreground font-bold text-base mx-0.5">✕</span>
-                                ))}
+                                <span className="text-destructive-foreground font-bold text-base">{result.incorrect > 1 ? `${result.incorrect}✕` : '✕'}</span>
                               </div>
                             )
                           )}
